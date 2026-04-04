@@ -223,20 +223,72 @@ onBeforeUnmount(() => {
 
 <style>
 :root {
-    color-scheme: light;
-    --bg-1: #eff4f2;
-    --bg-2: #f8faf8;
-    --panel: #ffffffee;
+    color-scheme: light dark;
+    --bg-1: #eef4f0;
+    --bg-2: #f7faf8;
+    --bg-accent: rgba(29, 122, 92, 0.09);
+    --panel: rgba(255, 255, 255, 0.9);
+    --panel-strong: rgba(255, 255, 255, 0.98);
+    --surface: #ffffff;
+    --surface-soft: #f4f8f6;
     --text-main: #1f2824;
     --text-sub: #5f6f67;
     --line: #d8e2dd;
+    --line-strong: #bfd0c7;
     --accent: #1d7a5c;
     --accent-strong: #11563f;
+    --accent-soft: #e8f2ed;
     --danger: #9f3a2b;
+    --danger-soft: #fff2ee;
+    --shadow: 0 24px 64px rgba(20, 38, 31, 0.08);
+    --backdrop: rgba(16, 37, 26, 0.34);
+    --code-bg: #15251f;
+    --code-text: #f6fff9;
+    --inline-code-bg: #e9f3ee;
+    --inline-code-text: #0f4a36;
+    --blockquote-line: #b4cec2;
+    --focus-ring: 0 0 0 3px rgba(29, 122, 92, 0.18);
+    --scrollbar-thumb: rgba(85, 112, 101, 0.34);
+    --scrollbar-track: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-1: #0d1411;
+        --bg-2: #121b17;
+        --bg-accent: rgba(75, 167, 127, 0.12);
+        --panel: rgba(18, 27, 23, 0.88);
+        --panel-strong: rgba(21, 31, 27, 0.96);
+        --surface: #16211c;
+        --surface-soft: #1a2721;
+        --text-main: #e7f0ea;
+        --text-sub: #9db0a6;
+        --line: #27352f;
+        --line-strong: #355145;
+        --accent: #5eb892;
+        --accent-strong: #86d8b1;
+        --accent-soft: #1c3028;
+        --danger: #ef8e7d;
+        --danger-soft: #2a1b18;
+        --shadow: 0 24px 64px rgba(0, 0, 0, 0.38);
+        --backdrop: rgba(3, 8, 6, 0.56);
+        --code-bg: #0b1611;
+        --code-text: #dff8ea;
+        --inline-code-bg: #1b2b23;
+        --inline-code-text: #b7f0cf;
+        --blockquote-line: #3b5a4d;
+        --focus-ring: 0 0 0 3px rgba(94, 184, 146, 0.22);
+        --scrollbar-thumb: rgba(145, 172, 160, 0.34);
+        --scrollbar-track: rgba(255, 255, 255, 0.03);
+    }
 }
 
 * {
     box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
 }
 
 html,
@@ -249,6 +301,34 @@ body {
 
 body {
     min-height: 100vh;
+    background: transparent;
+}
+
+button,
+input,
+textarea {
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
 }
 </style>
 
@@ -269,6 +349,7 @@ body {
     background: var(--panel);
     backdrop-filter: blur(8px);
     border-radius: 18px;
+    box-shadow: var(--shadow);
 }
 
 .sidebar {
@@ -303,7 +384,7 @@ body {
     width: 100%;
     text-align: left;
     border: 1px solid var(--line);
-    background: #ffffffd8;
+    background: var(--panel-strong);
     border-radius: 12px;
     padding: 10px;
     cursor: pointer;
@@ -314,8 +395,8 @@ body {
 }
 
 .conversation-item.active {
-    border-color: #7ab89f;
-    background: #e8f2ed;
+    border-color: var(--line-strong);
+    background: var(--accent-soft);
 }
 
 .conversation-title {
@@ -386,13 +467,13 @@ body {
 
 .message.user {
     align-self: flex-end;
-    background: #e9f4ee;
-    border-color: #c9ded3;
+    background: var(--accent-soft);
+    border-color: var(--line-strong);
 }
 
 .message.assistant {
     align-self: flex-start;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .role {
@@ -430,10 +511,10 @@ body {
 
 .markdown-body :deep(pre) {
     overflow-x: auto;
-    background: #15251f;
-    color: #f6fff9;
+    background: var(--code-bg);
+    color: var(--code-text);
     border-radius: 10px;
-    border: 1px solid #30483f;
+    border: 1px solid var(--line-strong);
     padding: 10px 12px;
 }
 
@@ -443,8 +524,8 @@ body {
 }
 
 .markdown-body :deep(:not(pre) > code) {
-    background: #e9f3ee;
-    color: #0f4a36;
+    background: var(--inline-code-bg);
+    color: var(--inline-code-text);
     border-radius: 6px;
     padding: 0.1em 0.35em;
 }
@@ -456,8 +537,8 @@ body {
 
 .markdown-body :deep(blockquote) {
     padding-left: 0.8em;
-    border-left: 3px solid #b4cec2;
-    color: #50655d;
+    border-left: 3px solid var(--blockquote-line);
+    color: var(--text-sub);
 }
 
 .markdown-body :deep(a) {
@@ -484,9 +565,16 @@ input,
     padding: 10px 12px;
     font: inherit;
     color: var(--text-main);
-    background: #fff;
+    background: var(--surface);
     resize: vertical;
     outline: none;
+}
+
+.composer textarea:focus,
+input:focus,
+.settings-modal textarea:focus {
+    border-color: var(--accent);
+    box-shadow: var(--focus-ring);
 }
 
 .composer button {
@@ -507,7 +595,7 @@ input,
 .composer button,
 .primary-btn {
     background: var(--accent);
-    color: #fff;
+    color: white;
 }
 
 .composer button:disabled {
@@ -516,21 +604,21 @@ input,
 }
 
 .ghost-btn {
-    background: #f5faf7;
+    background: var(--surface-soft);
     border-color: var(--line);
     color: var(--text-main);
 }
 
 .danger-btn {
-    background: #fff5f3;
-    border-color: #e8c8c1;
+    background: var(--danger-soft);
+    border-color: var(--line-strong);
     color: var(--danger);
 }
 
 .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: #10251a55;
+    background: var(--backdrop);
     display: grid;
     place-items: center;
     padding: 20px;
