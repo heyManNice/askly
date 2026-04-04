@@ -8,7 +8,6 @@ export default defineConfig({
     },
     window: {
         title: "问答",
-        backgroundMode: "mica",
         size: {
             width: 1200,
             height: 800,
