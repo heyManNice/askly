@@ -354,25 +354,24 @@ export const useChatStore = defineStore("chat", () => {
     const errorMessage = ref("");
 
     let persistTimer: ReturnType<typeof setTimeout> | null = null;
-    let pendingPersistSnapshot: ChatSnapshot | null = null;
+    let hasPendingPersist = false;
     let persistQueue: Promise<void> = Promise.resolve();
 
-    function schedulePersist(nextSnapshot: ChatSnapshot) {
-        pendingPersistSnapshot = toPersistableSnapshot(nextSnapshot);
+    function schedulePersist() {
+        hasPendingPersist = true;
         if (persistTimer !== null) {
             return;
         }
 
         persistTimer = setTimeout(() => {
             persistTimer = null;
-            const snapshotToSave = pendingPersistSnapshot;
-            pendingPersistSnapshot = null;
-            if (!snapshotToSave) {
+            if (!hasPendingPersist) {
                 return;
             }
+            hasPendingPersist = false;
 
             persistQueue = persistQueue
-                .then(() => writeSnapshotToDb(snapshotToSave))
+                .then(() => writeSnapshotToDb(snapshot.value))
                 .catch((error) => {
                     console.warn("Failed to persist chat snapshot to IndexedDB", error);
                 });
@@ -399,12 +398,12 @@ export const useChatStore = defineStore("chat", () => {
 
     watch(
         snapshot,
-        (value) => {
+        () => {
             if (!isHydrated.value) {
                 return;
             }
 
-            schedulePersist(value);
+            schedulePersist();
         },
         { deep: true },
     );
