@@ -489,12 +489,8 @@ export const useChatStore = defineStore("chat", () => {
             createdAt: Date.now(),
         };
 
-        target.messages.push(assistantMessage);
 
-        const liveAssistantMessage = target.messages.find((msg) => msg.id === assistantMessageId); // why it works?
-        if (!liveAssistantMessage) {
-            return;
-        }
+        let liveAssistantMessage: ChatMessage | null = null;
 
         isLoading.value = true;
         try {
@@ -502,6 +498,13 @@ export const useChatStore = defineStore("chat", () => {
                 settingsStore.settings,
                 target.messages,
                 (token) => {
+                    if (liveAssistantMessage === null) {
+                        target.messages.push(assistantMessage);
+                        liveAssistantMessage = target.messages.find((msg) => msg.id === assistantMessageId) ?? null;
+                        if (!liveAssistantMessage) {
+                            return;
+                        }
+                    }
                     liveAssistantMessage.content += token;
                     target.updatedAt = Date.now();
                 },
