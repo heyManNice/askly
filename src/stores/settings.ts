@@ -13,8 +13,8 @@ export type AssistantSettings = {
 
 const defaultSettings: AssistantSettings = {
     apiKey: "",
-    baseUrl: "https://api.openai.com/v1",
-    model: "gpt-4o-mini",
+    baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: "qwen-plus",
     temperature: 0.4,
     systemPrompt: "You are a concise, practical AI assistant.",
 };
