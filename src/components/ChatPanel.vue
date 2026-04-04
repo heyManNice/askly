@@ -11,6 +11,7 @@ const settingsStore = useSettingsStore();
 const draft = ref("");
 const messagesEl = ref<HTMLElement | null>(null);
 const scrollRafId = ref<number | null>(null);
+const isAutoScrollEnabledForCurrentReply = ref(true);
 
 const activeConversation = computed(() => chatStore.activeConversation);
 
@@ -52,13 +53,35 @@ function scrollMessagesToBottom() {
     container.scrollTop = container.scrollHeight;
 }
 
+function smoothScrollStepToBottom() {
+    const container = messagesEl.value;
+    if (!container) {
+        return;
+    }
+
+    const targetTop = container.scrollHeight - container.clientHeight;
+    const distance = targetTop - container.scrollTop;
+
+    if (distance <= 1) {
+        container.scrollTop = targetTop;
+        return;
+    }
+
+    // Ease-out interpolation for continuous, smooth following.
+    container.scrollTop += Math.max(1, distance * 0.22);
+}
+
 function startStreamAutoScroll() {
     if (scrollRafId.value !== null) {
         return;
     }
 
     const tick = () => {
-        scrollMessagesToBottom();
+        if (!isAutoScrollEnabledForCurrentReply.value) {
+            scrollRafId.value = null;
+            return;
+        }
+        smoothScrollStepToBottom();
         scrollRafId.value = window.requestAnimationFrame(tick);
     };
 
@@ -71,6 +94,18 @@ function stopStreamAutoScroll() {
     }
     window.cancelAnimationFrame(scrollRafId.value);
     scrollRafId.value = null;
+}
+
+function handleMessagesWheel(event: WheelEvent) {
+    if (!chatStore.isLoading) {
+        return;
+    }
+
+    // User explicitly scrolled upward: stop auto-follow for this reply only.
+    if (event.deltaY < 0) {
+        isAutoScrollEnabledForCurrentReply.value = false;
+        stopStreamAutoScroll();
+    }
 }
 
 watch(
@@ -95,11 +130,14 @@ watch(
     async (loading) => {
         await nextTick();
         if (loading) {
+            isAutoScrollEnabledForCurrentReply.value = true;
             startStreamAutoScroll();
             return;
         }
         stopStreamAutoScroll();
-        scrollMessagesToBottom();
+        if (isAutoScrollEnabledForCurrentReply.value) {
+            scrollMessagesToBottom();
+        }
     },
     { immediate: true },
 );
@@ -116,7 +154,7 @@ onBeforeUnmount(() => {
             <p>模型: {{ settingsStore.settings.model }} · {{ settingsStore.settings.baseUrl }}</p>
         </header>
 
-        <section ref="messagesEl" class="messages">
+        <section ref="messagesEl" class="messages" @wheel.passive="handleMessagesWheel">
             <div v-if="!activeConversation?.messages.length" class="empty-state">
                 <p>开始你的第一个问题吧。</p>
                 <p class="sub">左侧可以管理会话，设置里填写 API Key 后即可发问。</p>
