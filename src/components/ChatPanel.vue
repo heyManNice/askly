@@ -269,9 +269,11 @@ onBeforeUnmount(() => {
 .markdown-body :deep(p + ul),
 .markdown-body :deep(p + ol),
 .markdown-body :deep(p + pre),
+.markdown-body :deep(p + table),
 .markdown-body :deep(pre + p),
 .markdown-body :deep(ul + p),
 .markdown-body :deep(ol + p),
+.markdown-body :deep(table + p),
 .markdown-body :deep(blockquote + p) {
     margin-top: 0.6em;
 }
@@ -310,6 +312,50 @@ onBeforeUnmount(() => {
 
 .markdown-body :deep(a) {
     color: var(--accent);
+}
+
+.markdown-body :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--surface);
+}
+
+.markdown-body :deep(thead) {
+    background: color-mix(in srgb, var(--accent-soft) 70%, var(--surface));
+}
+
+.markdown-body :deep(th),
+.markdown-body :deep(td) {
+    padding: 10px 12px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.markdown-body :deep(th:last-child),
+.markdown-body :deep(td:last-child) {
+    border-right: none;
+}
+
+.markdown-body :deep(tbody tr:last-child td) {
+    border-bottom: none;
+}
+
+.markdown-body :deep(th) {
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+}
+
+.markdown-body :deep(td) {
+    color: var(--text-main);
 }
 
 .error-line {
