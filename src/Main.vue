@@ -181,9 +181,8 @@ onBeforeUnmount(() => {
                 </article>
             </section>
 
-            <p v-if="chatStore.errorMessage" class="error-line">{{ chatStore.errorMessage }}</p>
-
             <form class="composer" @submit.prevent="handleSubmit">
+                <p v-if="chatStore.errorMessage" class="error-line">{{ chatStore.errorMessage }}</p>
                 <textarea v-model="draft"
                     :placeholder="chatStore.isLoading ? '思考中...' : '输入你的问题，按 Enter 发送，Shift + Enter 换行。'" rows="3"
                     :disabled="chatStore.isLoading" @keydown.enter="handleComposerEnter" />
@@ -337,7 +336,7 @@ body {
 
 .chat-panel {
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: auto 1fr auto;
     padding: 20px;
     gap: 14px;
     min-height: 0;
@@ -473,7 +472,8 @@ body {
 
 .composer {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
+    gap: 8px;
 }
 
 .composer textarea,
