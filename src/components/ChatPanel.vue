@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import MarkdownIt from "markdown-it";
 import DOMPurify from "dompurify";
 import { useChatStore } from "../stores/chat";
@@ -10,10 +10,16 @@ const settingsStore = useSettingsStore();
 
 const draft = ref("");
 const messagesEl = ref<HTMLElement | null>(null);
+const contextMenuEl = ref<HTMLElement | null>(null);
 const scrollRafId = ref<number | null>(null);
 const isAutoScrollEnabledForCurrentReply = ref(true);
+const contextMenuOpen = ref(false);
+const contextMenuX = ref(0);
+const contextMenuY = ref(0);
+const selectedText = ref("");
 
 const activeConversation = computed(() => chatStore.activeConversation);
+const hasSelectedText = computed(() => selectedText.value.trim().length > 0);
 
 const md = new MarkdownIt({
     breaks: true,
@@ -24,6 +30,122 @@ const md = new MarkdownIt({
 function renderMarkdown(content: string) {
     const rawHtml = md.render(content);
     return DOMPurify.sanitize(rawHtml);
+}
+
+function markdownToPlainText(content: string) {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = md.render(content);
+    return (wrapper.textContent ?? "").trim();
+}
+
+function getConversationPlainText() {
+    const conversation = activeConversation.value;
+    if (!conversation) {
+        return "";
+    }
+
+    return conversation.messages
+        .map((message) => `${message.role === "user" ? "你" : "助手"}: ${markdownToPlainText(message.content)}`)
+        .join("\n\n");
+}
+
+function getConversationMarkdownText() {
+    const conversation = activeConversation.value;
+    if (!conversation) {
+        return "";
+    }
+
+    return conversation.messages
+        .map((message) => `${message.role === "user" ? "### 你" : "### 助手"}\n\n${message.content}`)
+        .join("\n\n---\n\n");
+}
+
+function getSelectedTextInMessages() {
+    const container = messagesEl.value;
+    const selection = window.getSelection();
+    if (!container || !selection || selection.rangeCount === 0) {
+        return "";
+    }
+
+    const text = selection.toString().trim();
+    if (!text) {
+        return "";
+    }
+
+    const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+    if ((anchorNode && container.contains(anchorNode)) || (focusNode && container.contains(focusNode))) {
+        return text;
+    }
+
+    return "";
+}
+
+async function copyText(text: string) {
+    if (!text) {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        return;
+    } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = text;
+        fallback.setAttribute("readonly", "true");
+        fallback.style.position = "fixed";
+        fallback.style.left = "-9999px";
+        document.body.appendChild(fallback);
+        fallback.select();
+        document.execCommand("copy");
+        document.body.removeChild(fallback);
+    }
+}
+
+function closeContextMenu() {
+    contextMenuOpen.value = false;
+}
+
+async function openContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    selectedText.value = getSelectedTextInMessages();
+    contextMenuOpen.value = true;
+
+    await nextTick();
+
+    const container = messagesEl.value;
+    const menu = contextMenuEl.value;
+    if (!container || !menu) {
+        return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const padding = 8;
+
+    const nextX = event.clientX - containerRect.left + container.scrollLeft;
+    const nextY = event.clientY - containerRect.top + container.scrollTop;
+
+    const maxX = container.scrollLeft + container.clientWidth - menuRect.width - padding;
+    const maxY = container.scrollTop + container.clientHeight - menuRect.height - padding;
+
+    contextMenuX.value = Math.max(container.scrollLeft + padding, Math.min(nextX, maxX));
+    contextMenuY.value = Math.max(container.scrollTop + padding, Math.min(nextY, maxY));
+}
+
+async function handleCopySelected() {
+    await copyText(selectedText.value.trim());
+    closeContextMenu();
+}
+
+async function handleCopyAll() {
+    await copyText(getConversationPlainText());
+    closeContextMenu();
+}
+
+async function handleCopyMarkdown() {
+    await copyText(getConversationMarkdownText());
+    closeContextMenu();
 }
 
 function handleSubmit() {
@@ -144,6 +266,21 @@ watch(
 
 onBeforeUnmount(() => {
     stopStreamAutoScroll();
+    document.removeEventListener("click", closeContextMenu);
+    document.removeEventListener("keydown", handleDocumentKeydown);
+    window.removeEventListener("resize", closeContextMenu);
+});
+
+function handleDocumentKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+        closeContextMenu();
+    }
+}
+
+onMounted(() => {
+    document.addEventListener("click", closeContextMenu);
+    document.addEventListener("keydown", handleDocumentKeydown);
+    window.addEventListener("resize", closeContextMenu);
 });
 </script>
 
@@ -154,7 +291,7 @@ onBeforeUnmount(() => {
             <p>模型: {{ settingsStore.settings.model }} · {{ settingsStore.settings.baseUrl }}</p>
         </header>
 
-        <section ref="messagesEl" class="messages" @wheel.passive="handleMessagesWheel">
+        <section ref="messagesEl" class="messages" @wheel.passive="handleMessagesWheel" @contextmenu="openContextMenu">
             <div v-if="!activeConversation?.messages.length" class="empty-state">
                 <p>开始你的第一个问题吧。</p>
                 <p class="sub">左侧可以管理会话，设置里填写 API Key 后即可发问。</p>
@@ -165,6 +302,13 @@ onBeforeUnmount(() => {
                 <div class="role">{{ message.role === "user" ? "你" : "助手" }}</div>
                 <div class="content markdown-body" v-html="renderMarkdown(message.content)" />
             </article>
+
+            <div v-if="contextMenuOpen" ref="contextMenuEl" class="context-menu"
+                :style="{ left: `${contextMenuX}px`, top: `${contextMenuY}px` }" @click.stop @contextmenu.prevent>
+                <button v-if="hasSelectedText" type="button" @click="handleCopySelected">复制选中</button>
+                <button type="button" @click="handleCopyAll">复制全部</button>
+                <button type="button" @click="handleCopyMarkdown">复制MD</button>
+            </div>
         </section>
 
         <form class="composer" @submit.prevent="handleSubmit">
@@ -203,6 +347,7 @@ onBeforeUnmount(() => {
 }
 
 .messages {
+    position: relative;
     overflow: auto;
     padding-right: 4px;
     display: flex;
@@ -356,6 +501,35 @@ onBeforeUnmount(() => {
 
 .markdown-body :deep(td) {
     color: var(--text-main);
+}
+
+.context-menu {
+    position: absolute;
+    z-index: 30;
+    min-width: 140px;
+    display: grid;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.context-menu button {
+    border: 0;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.context-menu button:hover {
+    background: var(--accent-soft);
 }
 
 .error-line {
