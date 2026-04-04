@@ -481,8 +481,9 @@ export const useChatStore = defineStore("chat", () => {
         target.updatedAt = Date.now();
 
         const settingsStore = useSettingsStore();
+        const assistantMessageId = generateId("msg");
         const assistantMessage: ChatMessage = {
-            id: generateId("msg"),
+            id: assistantMessageId,
             role: "assistant",
             content: "",
             createdAt: Date.now(),
@@ -490,13 +491,18 @@ export const useChatStore = defineStore("chat", () => {
 
         target.messages.push(assistantMessage);
 
+        const liveAssistantMessage = target.messages.find((msg) => msg.id === assistantMessageId); // why it works?
+        if (!liveAssistantMessage) {
+            return;
+        }
+
         isLoading.value = true;
         try {
             const finalAnswer = await streamAssistant(
                 settingsStore.settings,
                 target.messages,
                 (token) => {
-                    assistantMessage.content += token;
+                    liveAssistantMessage.content += token;
                     target.updatedAt = Date.now();
                 },
             );
