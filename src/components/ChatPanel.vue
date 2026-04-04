@@ -37,8 +37,21 @@ md.use(texmath, {
 });
 
 function renderMarkdown(content: string) {
-    const rawHtml = md.render(content);
+    const normalizedContent = normalizeMathEscaping(content);
+    const rawHtml = md.render(normalizedContent);
     return DOMPurify.sanitize(rawHtml);
+}
+
+function normalizeMathEscaping(content: string) {
+    // Some model outputs double-escape bracket delimiters, e.g. \\[ ... \\].
+    // Reduce one escape layer inside those math blocks so texmath can parse them.
+    return content
+        .replace(/\\\\\[((?:.|\n)*?)\\\\\]/g, (_all, inner: string) => {
+            return `\\[${inner.replace(/\\\\/g, "\\")}\\]`;
+        })
+        .replace(/\\\\\(((?:.|\n)*?)\\\\\)/g, (_all, inner: string) => {
+            return `\\(${inner.replace(/\\\\/g, "\\")}\\)`;
+        });
 }
 
 function markdownToPlainText(content: string) {
