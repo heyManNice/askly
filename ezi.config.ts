@@ -5,6 +5,7 @@ export default defineConfig({
         name: "问答",
         package: "com.ezi.demo.chat",
         icon: "image/logo.png",
+        singleInstance: true,
     },
     window: {
         title: "问答",
