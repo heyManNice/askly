@@ -1,9 +1,13 @@
 <script lang="ts" setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import MarkdownIt from "markdown-it";
+import texmath from "markdown-it-texmath";
+import katex from "katex";
 import DOMPurify from "dompurify";
 import { useChatStore } from "../stores/chat";
 import { useSettingsStore } from "../stores/settings";
+
+import "katex/dist/katex.min.css";
 
 const chatStore = useChatStore();
 const settingsStore = useSettingsStore();
@@ -25,6 +29,11 @@ const md = new MarkdownIt({
     breaks: true,
     linkify: true,
     html: false,
+});
+
+md.use(texmath, {
+    engine: katex,
+    delimiters: ["dollars", "brackets"],
 });
 
 function renderMarkdown(content: string) {
@@ -435,6 +444,25 @@ onMounted(() => {
 .markdown-body :deep(code) {
     font-family: "Consolas", "SFMono-Regular", "Liberation Mono", monospace;
     font-size: 0.92em;
+}
+
+.markdown-body :deep(.katex-display) {
+    margin: 0.9em 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.4em 0;
+}
+
+.markdown-body :deep(.katex) {
+    font-size: 1em;
+}
+
+.markdown-body :deep(.katex-html) {
+    white-space: normal;
+}
+
+.markdown-body :deep(.katex-display > .katex) {
+    display: inline-block;
 }
 
 .markdown-body :deep(:not(pre) > code) {

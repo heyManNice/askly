@@ -13,7 +13,9 @@
     "@langchain/openai": "^1.4.2",
     "@vitejs/plugin-vue": "latest",
     "dompurify": "^3.3.3",
+    "katex": "^0.16.44",
     "markdown-it": "^14.1.1",
+    "markdown-it-texmath": "^1.0.0",
     "pinia": "^3.0.4",
     "vue": "latest"
   },
