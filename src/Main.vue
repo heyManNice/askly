@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
             </form>
         </main>
 
-        <div v-if="isSettingsOpen" class="modal-backdrop" @click.self="isSettingsOpen = false">
+        <div v-if="isSettingsOpen" class="modal-backdrop">
             <section class="settings-modal">
                 <h3>模型设置</h3>
                 <label>
