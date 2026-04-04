@@ -566,7 +566,7 @@ input,
     font: inherit;
     color: var(--text-main);
     background: var(--surface);
-    resize: vertical;
+    resize: none;
     outline: none;
 }
 
