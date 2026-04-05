@@ -43,38 +43,74 @@ watch(
 </script>
 
 <template>
-    <div v-if="uiStore.isSettingsOpen" class="modal-backdrop">
-        <section class="settings-modal">
-            <h3>模型设置</h3>
-            <label>
-                API Key
-                <input v-model="formApiKey" type="password" placeholder="sk-..." />
-            </label>
-            <label>
-                Base URL
-                <input v-model="formBaseUrl" type="text" placeholder="https://api.openai.com/v1" />
-            </label>
-            <label>
-                Model
-                <input v-model="formModel" type="text" placeholder="gpt-4o-mini" />
-            </label>
-            <label>
-                Temperature (0-2)
-                <input v-model="formTemperature" type="number" min="0" max="2" step="0.1" />
-            </label>
-            <label>
-                System Prompt
-                <textarea v-model="formSystemPrompt" rows="3" />
-            </label>
-            <div class="modal-actions">
-                <button class="ghost-btn" @click="uiStore.closeSettings">取消</button>
-                <button class="primary-btn" @click="saveSettings">保存</button>
-            </div>
-        </section>
-    </div>
+    <transition name="modal-fade-scale">
+        <div v-if="uiStore.isSettingsOpen" class="modal-backdrop">
+            <section class="settings-modal">
+                <h3>模型设置</h3>
+                <label>
+                    API Key
+                    <input v-model="formApiKey" type="password" placeholder="sk-..." />
+                </label>
+                <label>
+                    Base URL
+                    <input v-model="formBaseUrl" type="text" placeholder="https://api.openai.com/v1" />
+                </label>
+                <label>
+                    Model
+                    <input v-model="formModel" type="text" placeholder="gpt-4o-mini" />
+                </label>
+                <label>
+                    Temperature (0-2)
+                    <input v-model="formTemperature" type="number" min="0" max="2" step="0.1" />
+                </label>
+                <label>
+                    System Prompt
+                    <textarea v-model="formSystemPrompt" rows="3" />
+                </label>
+                <div class="modal-actions">
+                    <button class="ghost-btn" @click="uiStore.closeSettings">取消</button>
+                    <button class="primary-btn" @click="saveSettings">保存</button>
+                </div>
+            </section>
+        </div>
+    </transition>
 </template>
 
 <style scoped>
+.modal-fade-scale-enter-active .settings-modal,
+.modal-fade-scale-leave-active .settings-modal {
+    transition:
+        opacity 0.3s var(--ease-smooth),
+        transform 0.3s var(--ease-smooth);
+}
+
+.modal-fade-scale-enter-active,
+.modal-fade-scale-leave-active {
+    transition: background-color 0.3s var(--ease-smooth);
+}
+
+.modal-fade-scale-enter-from.modal-backdrop,
+.modal-fade-scale-leave-to.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.modal-fade-scale-enter-to.modal-backdrop,
+.modal-fade-scale-leave-from.modal-backdrop {
+    background-color: var(--backdrop);
+}
+
+.modal-fade-scale-enter-from .settings-modal,
+.modal-fade-scale-leave-to .settings-modal {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+}
+
+.modal-fade-scale-enter-to .settings-modal,
+.modal-fade-scale-leave-from .settings-modal {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
 .modal-backdrop {
     position: fixed;
     inset: 0;

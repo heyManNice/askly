@@ -41,6 +41,7 @@ import SettingsModal from "./components/SettingsModal.vue";
     --focus-ring: 0 0 0 3px rgba(29, 122, 92, 0.18);
     --scrollbar-thumb: rgba(85, 112, 101, 0.34);
     --scrollbar-track: transparent;
+    --ease-smooth: cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 @media (prefers-color-scheme: dark) {
