@@ -325,12 +325,14 @@ onMounted(() => {
                 <div class="content markdown-body" v-html="renderMarkdown(message.content)" />
             </article>
 
-            <div v-if="contextMenuOpen" ref="contextMenuEl" class="context-menu"
-                :style="{ left: `${contextMenuX}px`, top: `${contextMenuY}px` }" @click.stop @contextmenu.prevent>
-                <button v-if="hasSelectedText" type="button" @click="handleCopySelected">复制选中</button>
-                <button type="button" @click="handleCopyAll">复制全部</button>
-                <button type="button" @click="handleCopyMarkdown">复制MD</button>
-            </div>
+            <transition name="context-menu-scale">
+                <div v-if="contextMenuOpen" ref="contextMenuEl" class="context-menu"
+                    :style="{ left: `${contextMenuX}px`, top: `${contextMenuY}px` }" @click.stop @contextmenu.prevent>
+                    <button v-if="hasSelectedText" type="button" @click="handleCopySelected">复制选中</button>
+                    <button type="button" @click="handleCopyAll">复制全部</button>
+                    <button type="button" @click="handleCopyMarkdown">复制MD</button>
+                </div>
+            </transition>
         </section>
 
         <form class="composer" @submit.prevent="handleSubmit">
@@ -343,6 +345,30 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.context-menu-scale-enter-active,
+.context-menu-scale-leave-active {
+    transition:
+        scale 0.3s var(--ease-smooth),
+        box-shadow 0.3s var(--ease-smooth),
+        opacity 0.3s var(--ease-smooth);
+}
+
+.context-menu.context-menu-scale-enter-from,
+.context-menu.context-menu-scale-leave-to {
+    transform-origin: top;
+    scale: 1 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 0.3;
+}
+
+.context-menu.context-menu-scale-enter-to,
+.context-menu.context-menu-scale-leave-from {
+    transform-origin: top;
+    scale: 1 1;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    opacity: 1;
+}
+
 .chat-panel {
     border: 1px solid var(--line);
     background: var(--panel);
