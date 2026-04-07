@@ -330,9 +330,8 @@ onMounted(() => {
 
         <form class="composer" @submit.prevent="handleSubmit">
             <p v-if="chatStore.errorMessage" class="error-line">{{ chatStore.errorMessage }}</p>
-            <textarea v-model="draft"
-                :placeholder="chatStore.isLoading ? '思考中...' : '输入你的问题，按 Enter 发送，Shift + Enter 换行。'" rows="3"
-                :disabled="chatStore.isLoading" @keydown.enter="handleComposerEnter" />
+            <textarea v-model="draft" placeholder="输入你的问题，按 Enter 发送，Shift + Enter 换行。" rows="3"
+                @keydown.enter="handleComposerEnter" />
         </form>
     </main>
 </template>
