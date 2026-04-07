@@ -289,19 +289,12 @@ watch(
 onBeforeUnmount(() => {
     stopStreamAutoScroll();
     document.removeEventListener("click", closeContextMenu);
-    document.removeEventListener("keydown", handleDocumentKeydown);
     window.removeEventListener("resize", closeContextMenu);
 });
 
-function handleDocumentKeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-        closeContextMenu();
-    }
-}
 
 onMounted(() => {
     document.addEventListener("click", closeContextMenu);
-    document.addEventListener("keydown", handleDocumentKeydown);
     window.addEventListener("resize", closeContextMenu);
 });
 </script>
