@@ -3,7 +3,7 @@ import { defineConfig } from "@eziapp-org/bridge";
 export default defineConfig({
     application: {
         name: "问答",
-        package: "com.ezi.demo.chat",
+        package: "com.ezi.demo.askly",
         icon: "image/logo.png",
         singleInstance: true,
     },
