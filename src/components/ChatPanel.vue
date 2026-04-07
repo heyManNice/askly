@@ -322,7 +322,7 @@ onMounted(() => {
             <article v-for="message in activeConversation?.messages || []" :key="message.id" class="message"
                 :class="message.role">
                 <div class="role">{{ message.role === "user" ? "你" : "助手" }}</div>
-                <div class="content markdown-body" v-html="renderMarkdown(message.content)" />
+                <div class="content markdown-body" v-diff-html="renderMarkdown(message.content)" />
             </article>
 
             <transition name="context-menu-scale">
