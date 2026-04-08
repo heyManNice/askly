@@ -1,0 +1,17 @@
+/* tailwindcss */
+@import "tailwindcss";
+
+
+/* 显示元素边框 */
+* {
+    outline: 1px solid blue;
+}
+
+/* 根元素占满窗口 */
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}

@@ -1,0 +1,10 @@
+{
+    "node": {
+        "scope": "vue,html",
+        "prefix": "n",
+        "body": [
+            "<n>$0</n>"
+        ],
+        "description": "使用简短无样式的标签作为节点"
+    }
+}
