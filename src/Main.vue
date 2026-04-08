@@ -9,8 +9,9 @@
             <n class="flex-1 flex flex-col gap-4">
                 <FaRocketchat />
                 <FaUsersCog />
-                <FaPlug />
                 <FaServer />
+                <FaPlug />
+                <FaBox />
             </n>
             <!-- 菜单按钮区 -->
             <n>
@@ -33,7 +34,8 @@ import {
     FaBars,
     FaUsersCog,
     FaPlug,
-    FaServer
+    FaServer,
+    FaBox
 } from 'vue-icons-plus/fa'
 
 </script>
