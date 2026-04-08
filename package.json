@@ -11,6 +11,7 @@
     "@eziapp-org/builder": "latest",
     "@langchain/core": "^1.1.39",
     "@langchain/openai": "^1.4.2",
+    "@tailwindcss/vite": "^4.2.2",
     "@vitejs/plugin-vue": "latest",
     "dompurify": "^3.3.3",
     "katex": "^0.16.44",
@@ -18,6 +19,7 @@
     "markdown-it-texmath": "^1.0.0",
     "morphdom": "^2.7.8",
     "pinia": "^3.0.4",
+    "tailwindcss": "^4.2.2",
     "vue": "latest"
   },
   "devDependencies": {
