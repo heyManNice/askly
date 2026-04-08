@@ -2,10 +2,18 @@
 @import "tailwindcss";
 
 
-/* 显示元素边框 */
+/* 显示元素边框和对角线 */
 * {
     outline: 1px solid blue;
+    background-image: linear-gradient(to bottom right,
+            transparent calc(50% - 1px),
+            red calc(50% - 1px),
+            red calc(50% + 1px),
+            transparent calc(50% + 1px));
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
 }
+
 
 /* 根元素占满窗口 */
 html,
