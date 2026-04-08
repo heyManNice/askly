@@ -30,7 +30,7 @@
 }
 
 .debug [data-debug-hover]:not([class])::after {
-    content: "class: (empty)" !important;
+    content: "(empty)";
 }
 
 
