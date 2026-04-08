@@ -7,15 +7,14 @@
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
             <n class="flex-1 flex flex-col gap-4">
-                <FaRocketchat />
-                <FaUsersCog />
-                <FaServer />
-                <FaPlug />
-                <FaBox />
+                <FiMessageSquare />
+                <FiUsers />
+                <FiServer />
+                <FiBox />
             </n>
             <!-- 菜单按钮区 -->
             <n>
-                <FaBars />
+                <FiMenu />
             </n>
         </n>
         <!-- 导航内容区 -->
@@ -30,12 +29,11 @@
 <script lang="ts" setup>
 import avatar from './image/avatar.jpg';
 import {
-    FaRocketchat,
-    FaBars,
-    FaUsersCog,
-    FaPlug,
-    FaServer,
-    FaBox
-} from 'vue-icons-plus/fa'
+    FiMessageSquare,
+    FiServer,
+    FiUsers,
+    FiMenu,
+    FiBox
+} from 'vue-icons-plus/fi';
 
 </script>
