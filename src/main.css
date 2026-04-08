@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 
-/* 显示元素边框和对角线 */
-* {
+/* debug时显示元素边框和对角线 */
+.debug * {
     outline: 1px solid blue;
     background-image: linear-gradient(to bottom right,
             transparent calc(50% - 1px),

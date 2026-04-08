@@ -14,6 +14,11 @@
     document.addEventListener("dragstart", function (e) {
         e.preventDefault();
     });
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "d") {
+            document.body.classList.toggle("debug");
+        }
+    });
 </script>
 
 </html>
