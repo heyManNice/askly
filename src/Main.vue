@@ -2,13 +2,20 @@
     <!-- 总容器 -->
     <n class="flex flex-row h-screen">
         <!-- 边栏导航 -->
-        <n class="w-15 shrink-0 flex flex-col gap-2">
+        <n class="w-15 shrink-0 flex flex-col gap-5 items-center pb-5">
             <!-- 头像 -->
-            <n>1</n>
+            <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
-            <n class="flex-1">2</n>
+            <n class="flex-1 flex flex-col gap-4">
+                <FaRocketchat />
+                <FaUsersCog />
+                <FaPlug />
+                <FaServer />
+            </n>
             <!-- 菜单按钮区 -->
-            <n>3</n>
+            <n>
+                <FaBars />
+            </n>
         </n>
         <!-- 导航内容区 -->
         <n class="flex-1 flex flex-row">
@@ -20,5 +27,13 @@
     </n>
 </template>
 <script lang="ts" setup>
+import avatar from './image/avatar.jpg';
+import {
+    FaRocketchat,
+    FaBars,
+    FaUsersCog,
+    FaPlug,
+    FaServer
+} from 'vue-icons-plus/fa'
 
 </script>
