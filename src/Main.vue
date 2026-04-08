@@ -7,14 +7,14 @@
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
             <n class="flex-1 flex flex-col gap-4">
-                <FiMessageSquare />
-                <FiUsers />
-                <FiServer />
-                <FiBox />
+                <FiMessageSquare class="cursor-pointer " />
+                <FiUsers class="cursor-pointer " />
+                <FiServer class="cursor-pointer" />
+                <FiBox class="cursor-pointer" />
             </n>
             <!-- 菜单按钮区 -->
             <n>
-                <FiMenu />
+                <FiMenu class="cursor-pointer" />
             </n>
         </n>
         <!-- 导航内容区 -->
