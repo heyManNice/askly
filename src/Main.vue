@@ -19,8 +19,15 @@
         </n>
         <!-- 导航内容区 -->
         <n class="flex-1 flex flex-row">
-            <!-- 导航列表区 -->
-            <n class="w-60"></n>
+            <!-- 导航列表区上下分栏 -->
+            <n class="w-60 flex flex-col gap-2">
+                <!-- 搜索框 -->
+                <n class="h-8 flex px-2">
+                    <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
+                </n>
+                <!-- 列表区域 -->
+                <n class="flex-1"></n>
+            </n>
             <!-- 导航内容区 -->
             <n class="flex-1"></n>
         </n>

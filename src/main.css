@@ -42,3 +42,7 @@ body {
     margin: 0;
     overflow: hidden;
 }
+
+*:focus {
+    outline: none;
+}
