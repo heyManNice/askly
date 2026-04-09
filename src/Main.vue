@@ -19,7 +19,7 @@
             <!-- 功能列表区上下分栏 -->
             <n class="w-60 flex flex-col gap-2">
                 <!-- 搜索框 -->
-                <n class="h-8 flex">
+                <n class="h-8 flex shrink-0">
                     <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
                 </n>
                 <!-- 列表区域 -->
