@@ -7,10 +7,7 @@
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
             <n class="flex-1 flex flex-col gap-4">
-                <FiMessageSquare class="cursor-pointer " />
-                <FiUsers class="cursor-pointer " />
-                <FiServer class="cursor-pointer" />
-                <FiBox class="cursor-pointer" />
+                <component :is="route.icon" v-for="route in routes" :key="route.name" class="cursor-pointer" />
             </n>
             <!-- 菜单按钮区 -->
             <n>
@@ -40,7 +37,36 @@ import {
     FiServer,
     FiUsers,
     FiMenu,
-    FiBox
+    FiShoppingBag,
+    FiDatabase
 } from 'vue-icons-plus/fi';
+
+type Route = {
+    name: string;
+    icon: typeof FiMessageSquare;
+};
+
+const routes: Route[] = [
+    {
+        name: 'conversations',
+        icon: FiMessageSquare
+    },
+    {
+        name: 'roles',
+        icon: FiUsers
+    },
+    {
+        name: 'apis',
+        icon: FiServer
+    },
+    {
+        name: 'database',
+        icon: FiDatabase
+    },
+    {
+        name: 'resources',
+        icon: FiShoppingBag
+    }
+];
 
 </script>
