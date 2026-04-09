@@ -6,11 +6,19 @@
             <!-- 头像 -->
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
-            <n class="flex-1 flex flex-col gap-4">
-                <component :is="route.icon" v-for="route in routes" :key="route.name" class="cursor-pointer" />
+            <n class="flex-1 flex flex-col gap-1">
+                <template v-for="route in routes" :key="route.name">
+                    <!-- 外面的包围样式 -->
+                    <n class="p-2 rounded hover:bg-gray-100" :class="{
+                        'bg-gray-100': route.name === 'conversations',
+                    }">
+                        <!-- 里面的图标 -->
+                        <component :is="route.icon" class="cursor-pointer" />
+                    </n>
+                </template>
             </n>
             <!-- 菜单按钮区 -->
-            <n>
+            <n class="p-2 rounded hover:bg-gray-100">
                 <FiMenu class="cursor-pointer" />
             </n>
         </n>
