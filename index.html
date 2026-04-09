@@ -14,20 +14,20 @@
     document.addEventListener("dragstart", function (e) {
         e.preventDefault();
     });
+
+    function onMouseover(e) {
+        e.target.setAttribute("data-debug-hover", "true");
+    }
+    function onMouseout(e) {
+        e.target.removeAttribute("data-debug-hover");
+    }
+
     document.addEventListener("keydown", function (e) {
         if (e.key !== 'D') {
             return;
         }
         document.body.classList.toggle("debug");
 
-        function onMouseover(e) {
-            if (document.body.classList.contains("debug")) {
-                e.target.setAttribute("data-debug-hover", "true");
-            }
-        }
-        function onMouseout(e) {
-            e.target.removeAttribute("data-debug-hover");
-        }
         if (document.body.classList.contains("debug")) {
             document.body.addEventListener("mouseover", onMouseover);
             document.body.addEventListener("mouseout", onMouseout);
