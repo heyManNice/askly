@@ -2,7 +2,7 @@
     <!-- 总容器 -->
     <n class="flex flex-row h-screen">
         <!-- 边栏导航 -->
-        <n class="w-15 shrink-0 flex flex-col gap-5 items-center pb-5">
+        <n class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2">
             <!-- 头像 -->
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
