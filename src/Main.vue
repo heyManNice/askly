@@ -1,8 +1,8 @@
 <template>
     <!-- 总容器 -->
-    <n class="flex flex-row h-screen">
+    <n class="flex flex-row h-screen gap-2">
         <!-- 边栏导航 -->
-        <n class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2">
+        <n class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2 border-r border-gray-200">
             <!-- 头像 -->
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
@@ -61,12 +61,12 @@
             <!-- 导航内容区 -->
             <n class="flex-1 flex flex-col h-full border-l border-gray-200">
                 <!-- 标题栏 -->
-                <n class="flex flex-row px-2">
+                <n class="flex flex-row px-2 pb-2 border-b border-gray-200">
                     <!-- 标题文字 -->
                     <n class="mr-auto">猫小咪</n>
                     <!-- 按钮操作区 -->
                     <n class="mr-2 flex">
-                        <FiMoreHorizontal />
+                        <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
                     </n>
                 </n>
                 <!-- 信息显示区域 -->
