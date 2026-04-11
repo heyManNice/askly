@@ -23,7 +23,7 @@
             </n>
         </n>
         <!-- 内容区 -->
-        <n class="flex-1 flex flex-row">
+        <n class="flex-1 flex flex-row gap-2">
             <!-- 功能列表区上下分栏 -->
             <n class="w-60 flex flex-col gap-2">
                 <!-- 搜索框 -->
@@ -59,9 +59,9 @@
                 </n>
             </n>
             <!-- 导航内容区 -->
-            <n class="flex-1 flex flex-col h-full px-2">
+            <n class="flex-1 flex flex-col h-full border-l border-gray-200">
                 <!-- 标题栏 -->
-                <n class="flex flex-row">
+                <n class="flex flex-row px-2">
                     <!-- 标题文字 -->
                     <n class="mr-auto">猫小咪</n>
                     <!-- 按钮操作区 -->
@@ -72,9 +72,9 @@
                 <!-- 信息显示区域 -->
                 <n class="flex-1"></n>
                 <!-- 信息输入框 -->
-                <n class="h-40 flex flex-col shrink-0">
+                <n class="h-40 flex flex-col shrink-0 border-t border-gray-200 p-2 gap-1">
                     <!-- 功能选择区 -->
-                    <n class="flex flex-row-reverse gap-2">
+                    <n class="flex flex-row gap-2">
                         <FiFolder />
                         <FiImage />
                     </n>
