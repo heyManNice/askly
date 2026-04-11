@@ -1,8 +1,8 @@
 <template>
     <!-- 总容器 -->
-    <n class="flex flex-row h-screen gap-2">
+    <n class="flex flex-row h-screen md:gap-2">
         <!-- 边栏导航 -->
-        <n class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2 border-r border-gray-200">
+        <n class="w-15 shrink-0 flex-col gap-3 items-center pb-2 md:border-r border-gray-200 hidden sm:flex">
             <!-- 头像 -->
             <img class="w-10 rounded" :src="avatar" alt="avatar">
             <!-- 操作按钮区 -->
@@ -25,7 +25,7 @@
         <!-- 内容区 -->
         <n class="flex-1 flex flex-row gap-2">
             <!-- 功能列表区上下分栏 -->
-            <n class="w-60 flex flex-col gap-2">
+            <n class="w-60 flex-col gap-2 hidden md:flex">
                 <!-- 搜索框 -->
                 <n class="h-8 flex shrink-0">
                     <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
@@ -62,8 +62,9 @@
             <n class="flex-1 flex flex-col h-full border-l border-gray-200">
                 <!-- 标题栏 -->
                 <n class="flex flex-row px-2 pb-2 border-b border-gray-200">
+                    <FiChevronLeft class="w-5 cursor-pointer hover:bg-gray-100 rounded block md:hidden" />
                     <!-- 标题文字 -->
-                    <n class="mr-auto">猫小咪</n>
+                    <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
                     <!-- 按钮操作区 -->
                     <n class="mr-2 flex">
                         <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
@@ -97,7 +98,8 @@ import {
     FiDatabase,
     FiMoreHorizontal,
     FiFolder,
-    FiImage
+    FiImage,
+    FiChevronLeft
 } from 'vue-icons-plus/fi';
 
 type Route = {
