@@ -62,7 +62,8 @@
             <n class="flex-1 flex flex-col h-full border-l border-gray-200">
                 <!-- 标题栏 -->
                 <n class="flex flex-row px-2 pb-2 border-b border-gray-200">
-                    <FiChevronLeft class="w-5 cursor-pointer hover:bg-gray-100 rounded block md:hidden" />
+                    <!-- mr5是为了让标题居中 -->
+                    <FiChevronLeft class="w-5 cursor-pointer hover:bg-gray-100 rounded block md:hidden mr-5" />
                     <!-- 标题文字 -->
                     <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
                     <!-- 按钮操作区 -->
