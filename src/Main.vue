@@ -25,7 +25,7 @@
         <!-- 导航页面区 -->
         <n class="flex-1 flex flex-row relative">
             <!-- 功能列表区 -->
-            <n class="w-full md:w-60 flex-col gap-2 px-2 flex md:static absolute">
+            <n class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
                 <!-- 搜索框 -->
                 <n class="h-8 flex shrink-0">
                     <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
@@ -55,6 +55,21 @@
                                 {{ conversation.lastMessage }}
                             </n>
                         </n>
+                    </n>
+                </n>
+                <!-- 手机版底部的bar导航 -->
+                <n class="sm:hidden flex flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
+                    <n class="flex flex-col items-center">
+                        <FiMessageSquare />
+                        <n class="text-xs">会话</n>
+                    </n>
+                    <n class="flex flex-col items-center">
+                        <FiUsers />
+                        <n class="text-xs">角色</n>
+                    </n>
+                    <n class="flex flex-col items-center">
+                        <FiMenu />
+                        <n class="text-xs">更多</n>
                     </n>
                 </n>
             </n>
