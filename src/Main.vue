@@ -4,7 +4,8 @@
         <!-- 电脑版导航栏容器 -->
         <n class="flex flex-row h-screen">
             <!-- 边栏导航 -->
-            <n class="w-15 shrink-0 flex-col gap-3 items-center pb-2 md:border-r border-gray-200 hidden sm:flex">
+            <n v-if="screenWidth >= 640"
+                class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
                 <!-- 头像 -->
                 <img class="w-10 rounded" :src="avatar" alt="avatar">
                 <!-- 操作按钮区 -->
@@ -96,8 +97,8 @@
             </n>
         </n>
         <!-- 手机版底部的bar导航 -->
-        <n
-            class="sm:hidden flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
+        <n v-if="screenWidth < 640"
+            class="flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
             <n class="flex flex-col items-center">
                 <FiMessageSquare />
                 <n class="text-xs">会话</n>
