@@ -66,7 +66,8 @@
                     <!-- 标题文字 -->
                     <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
                     <!-- 按钮操作区 -->
-                    <n class="mr-2 flex">
+                    <n class="mr-2 flex gap-2">
+                        <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
                         <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
                     </n>
                 </n>
@@ -102,6 +103,9 @@ import {
     FiChevronLeft
 } from 'vue-icons-plus/fi';
 
+import { 
+    VscPin
+} from 'vue-icons-plus/vsc';
 type Route = {
     name: string;
     icon: typeof FiMessageSquare;
