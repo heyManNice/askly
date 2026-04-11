@@ -59,7 +59,30 @@
                 </n>
             </n>
             <!-- 导航内容区 -->
-            <n class="flex-1"></n>
+            <n class="flex-1 flex flex-col h-full px-2">
+                <!-- 标题栏 -->
+                <n class="flex flex-row">
+                    <!-- 标题文字 -->
+                    <n class="mr-auto">猫小咪</n>
+                    <!-- 按钮操作区 -->
+                    <n class="mr-2 flex">
+                        <FiMoreHorizontal />
+                    </n>
+                </n>
+                <!-- 信息显示区域 -->
+                <n class="flex-1"></n>
+                <!-- 信息输入框 -->
+                <n class="h-40 flex flex-col shrink-0">
+                    <!-- 功能选择区 -->
+                    <n class="flex flex-row-reverse gap-2">
+                        <FiFolder />
+                        <FiImage />
+                    </n>
+                    <!-- 输入框 -->
+                    <textarea class="flex-1 resize-none" type="text"
+                        placeholder="输入你的问题，按 Enter 发生，按 Shift + Enter 换行。" />
+                </n>
+            </n>
         </n>
     </n>
 </template>
@@ -71,7 +94,10 @@ import {
     FiUsers,
     FiMenu,
     FiShoppingBag,
-    FiDatabase
+    FiDatabase,
+    FiMoreHorizontal,
+    FiFolder,
+    FiImage
 } from 'vue-icons-plus/fi';
 
 type Route = {
