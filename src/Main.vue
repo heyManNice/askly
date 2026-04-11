@@ -72,11 +72,11 @@
                 <!-- 信息显示区域 -->
                 <n class="flex-1"></n>
                 <!-- 信息输入框 -->
-                <n class="h-40 flex flex-col shrink-0 border-t border-gray-200 p-2 gap-1">
+                <n class="h-40 flex flex-col shrink-0 border-t border-gray-200 px-2 py-1 gap-1">
                     <!-- 功能选择区 -->
                     <n class="flex flex-row gap-2">
-                        <FiFolder />
-                        <FiImage />
+                        <FiFolder class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+                        <FiImage class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
                     </n>
                     <!-- 输入框 -->
                     <textarea class="flex-1 resize-none" type="text"
