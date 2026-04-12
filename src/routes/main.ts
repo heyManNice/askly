@@ -4,6 +4,7 @@ import {
     FiUsers,
     FiShoppingBag,
     FiDatabase,
+    FiMenu
 } from 'vue-icons-plus/fi';
 
 import {
@@ -20,12 +21,17 @@ import ConversationsSub from '@pages/conversations/Sub.vue';
 import RolesTop from '@pages/roles/Top.vue';
 import RolesSub from '@pages/roles/Sub.vue';
 
+// 更多
+import MoreTop from '@pages/more/Top.vue';
+import MoreSub from '@pages/more/Sub.vue';
+
 type Route = {
     id: string;
     label: string;
     icon: typeof FiMessageSquare;
     top: Component;
     sub: Component;
+    hiddenOnDesktop?: boolean;
 };
 
 export const routes: Route[] = [
@@ -63,8 +69,19 @@ export const routes: Route[] = [
         icon: FiShoppingBag,
         top: RolesTop,
         sub: RolesSub
+    },
+    // 约定最后一个more只在手机上显示
+    {
+        id: 'more',
+        label: '更多',
+        icon: FiMenu,
+        top: MoreTop,
+        sub: MoreSub,
+        hiddenOnDesktop: true
     }
 ];
+
+export const moreRouteIndex = routes.findIndex(route => route.id === 'more');
 
 // 选中的路由
 export const selectedRoute = ref<number>(0);

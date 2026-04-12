@@ -4,7 +4,7 @@
     <!-- 导航图标 -->
     <n class="flex-1 flex flex-col gap-1">
         <template v-for="(route, i) in routes" :key="route.id">
-            <n class="p-2 rounded hover:bg-gray-100 cursor-pointer" :class="{
+            <n v-if="!route.hiddenOnDesktop" class="p-2 rounded hover:bg-gray-100 cursor-pointer" :class="{
                 'bg-gray-100': i === selectedRoute,
             }" :title="route.label" @click="selectedRoute = i">
                 <component :is="route.icon" />

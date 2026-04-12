@@ -9,9 +9,11 @@
             <n class="text-xs">{{ route.label }}</n>
         </n>
         <!-- 额外的导航项 -->
-        <n key="mobile-more" class="flex flex-col items-center cursor-pointer w-15">
+        <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
+            'text-blue-400': moreRouteIndex === selectedRoute
+        }" @click="selectedRoute = moreRouteIndex">
             <FiMenu />
-            <n class="text-xs">更多</n>
+            <n class=" text-xs">更多</n>
         </n>
     </TransitionGroup>
 </template>
@@ -23,7 +25,8 @@ import {
 
 import {
     routes,
-    selectedRoute
+    selectedRoute,
+    moreRouteIndex
 } from '@routes/main';
 
 import {
@@ -50,6 +53,11 @@ const navIconCount = ref(getNavIconCount());
 function updateScreenWidth() {
     srceenWidth.value = window.innerWidth;
     navIconCount.value = getNavIconCount();
+
+    // 如果当前选中的导航图标已经不显示，那么就显示more
+    if (selectedRoute.value >= navIconCount.value) {
+        selectedRoute.value = moreRouteIndex;
+    }
 }
 
 function onBeforeLeave(el: Element) {

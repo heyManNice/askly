@@ -56,6 +56,11 @@ const BP: Readonly<Record<'sm' | 'md' | 'lg' | 'xl' | '2xl', number>> = {
     '2xl': 1536
 };
 
+import {
+    selectedRoute,
+    moreRouteIndex
+} from '@routes/main';
+
 const screenWidth = ref(window.innerWidth);
 
 const currentPage = ref<CurrentPage>(screenWidth.value >= BP.md ? 'both-page' : 'top-page');
@@ -65,6 +70,12 @@ function syncLayoutState() {
 
     if (screenWidth.value >= BP.md) {
         currentPage.value = 'both-page';
+    }
+
+    // 如果当前在more页且切换到桌面布局，重置到第一个页面
+    // more页仅在手机上显示，桌面布局没有more页
+    if (selectedRoute.value === moreRouteIndex && screenWidth.value >= BP.sm) {
+        selectedRoute.value = 0;
     }
 }
 
