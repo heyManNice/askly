@@ -36,7 +36,6 @@ const srceenWidth = ref(window.innerWidth);
 
 // 获取导航图标数量
 function getNavIconCount() {
-    const length = routes.length;
     if (srceenWidth.value < 340)
         return 2;
     else if (srceenWidth.value < 440)
