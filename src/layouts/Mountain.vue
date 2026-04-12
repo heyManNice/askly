@@ -13,10 +13,10 @@
         <n class="flex-1 flex flex-row relative">
             <!-- 列表选项区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-bg-l' : 'flex-scale-x'">
-                <n v-if="currentPage !== 'content'"
+                <n v-if="currentPage !== 'sub-page'"
                     class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 操作列表插槽 -->
-                    <slot name="list-panel" :page="page" />
+                    <slot name="top-page" :page="page" />
                     <!-- 手机版导航区 -->
                     <transition name="flex-scale-y">
                         <n v-if="screenWidth < BP.sm"
@@ -30,10 +30,10 @@
 
             <!-- 内容区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-fg-r' : 'disable'">
-                <n v-if="currentPage !== 'list'"
+                <n v-if="currentPage !== 'top-page'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
                     <!-- 内容区域插槽 -->
-                    <slot name="content-panel" :page="page" />
+                    <slot name="sub-page" :page="page" />
                 </n>
             </transition>
         </n>
@@ -47,7 +47,7 @@ import {
     onUnmounted
 } from 'vue';
 
-type CurrentPage = 'list' | 'content' | 'both';
+type CurrentPage = 'top-page' | 'sub-page' | 'both-page';
 
 const BP: Readonly<Record<'sm' | 'md' | 'lg' | 'xl' | '2xl', number>> = {
     sm: 640,
@@ -59,25 +59,25 @@ const BP: Readonly<Record<'sm' | 'md' | 'lg' | 'xl' | '2xl', number>> = {
 
 const screenWidth = ref(window.innerWidth);
 
-const currentPage = ref<CurrentPage>(screenWidth.value >= BP.md ? 'both' : 'list');
+const currentPage = ref<CurrentPage>(screenWidth.value >= BP.md ? 'both-page' : 'top-page');
 
 function syncLayoutState() {
     screenWidth.value = window.innerWidth;
 
     if (screenWidth.value >= BP.md) {
-        currentPage.value = 'both';
+        currentPage.value = 'both-page';
     }
 }
 
 const page = {
-    toContent() {
+    toSubPage() {
         if (screenWidth.value < BP.md) {
-            currentPage.value = 'content';
+            currentPage.value = 'sub-page';
         }
     },
-    toList() {
+    toTopPage() {
         if (screenWidth.value < BP.md) {
-            currentPage.value = 'list';
+            currentPage.value = 'top-page';
         }
     }
 };

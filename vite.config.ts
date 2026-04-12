@@ -11,6 +11,7 @@ export default defineConfig({
             '@directives': path.resolve(__dirname, 'src/directives'),
             '@images': path.resolve(__dirname, 'src/images'),
             '@layouts': path.resolve(__dirname, 'src/layouts'),
+            '@pages': path.resolve(__dirname, 'src/pages'),
             '@routes': path.resolve(__dirname, 'src/routes'),
             '@services': path.resolve(__dirname, 'src/services'),
             '@stores': path.resolve(__dirname, 'src/stores')
