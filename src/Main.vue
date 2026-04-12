@@ -5,7 +5,7 @@
         <n class="flex flex-row h-screen">
             <!-- 边栏导航 -->
             <n v-if="screenWidth >= 640"
-                class="w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
+                class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
                 <!-- 头像 -->
                 <img class="w-10 rounded" :src="avatar" alt="avatar">
                 <!-- 操作按钮区 -->
@@ -28,42 +28,45 @@
             <!-- 导航页面区 -->
             <n class="flex-1 flex flex-row relative">
                 <!-- 功能列表区 -->
-                <n class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
-                    <!-- 搜索框 -->
-                    <n class="h-8 flex shrink-0">
-                        <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
-                    </n>
-                    <!-- 列表区域 -->
-                    <n class="flex-1 flex flex-col gap-2 overflow-y-auto">
-                        <!-- 列表卡片 -->
-                        <n v-for="conversation in conversations" :key="conversation.id"
-                            @click="isShowConversation = true"
-                            class="flex items-center rounded cursor-pointer hover:bg-gray-100 gap-2">
-                            <!-- 左边头像 -->
-                            <img class="w-10 rounded" :src="conversation.avatar" alt="avatar">
-                            <!-- 右边文字 -->
-                            <n class="flex flex-col flex-1 overflow-hidden">
-                                <!-- 标题和时间 -->
-                                <n class="flex items-center gap-2">
-                                    <!-- 标题 -->
-                                    <n class="font-medium mr-auto truncate">
-                                        {{ conversation.title }}
+                <transition :name="screenWidth < 768 ? 'slide-bg-l' : 'disable'">
+                    <n v-if="screenWidth >= 768 || !isShowConversation"
+                        class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
+                        <!-- 搜索框 -->
+                        <n class="h-8 flex shrink-0">
+                            <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
+                        </n>
+                        <!-- 列表区域 -->
+                        <n class="flex-1 flex flex-col gap-2 overflow-y-auto">
+                            <!-- 列表卡片 -->
+                            <n v-for="conversation in conversations" :key="conversation.id"
+                                @click="isShowConversation = true"
+                                class="flex items-center rounded cursor-pointer hover:bg-gray-100 gap-2">
+                                <!-- 左边头像 -->
+                                <img class="w-10 rounded" :src="conversation.avatar" alt="avatar">
+                                <!-- 右边文字 -->
+                                <n class="flex flex-col flex-1 overflow-hidden">
+                                    <!-- 标题和时间 -->
+                                    <n class="flex items-center gap-2">
+                                        <!-- 标题 -->
+                                        <n class="font-medium mr-auto truncate">
+                                            {{ conversation.title }}
+                                        </n>
+                                        <!-- 更新时间 -->
+                                        <n class="text-xs text-gray-500">{{
+                                            conversation.updatedAt }}
+                                        </n>
                                     </n>
-                                    <!-- 更新时间 -->
-                                    <n class="text-xs text-gray-500">{{
-                                        conversation.updatedAt }}
+                                    <!-- 会话信息 -->
+                                    <n class="text-sm text-gray-500 truncate">
+                                        {{ conversation.lastMessage }}
                                     </n>
-                                </n>
-                                <!-- 会话信息 -->
-                                <n class="text-sm text-gray-500 truncate">
-                                    {{ conversation.lastMessage }}
                                 </n>
                             </n>
                         </n>
                     </n>
-                </n>
+                </transition>
                 <!-- 导航内容区 -->
-                <transition :name="screenWidth < 768 ? 'slide-x' : 'disable'">
+                <transition :name="screenWidth < 768 ? 'slide-fg-r' : 'disable'">
                     <n v-if="isShowConversation"
                         class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
                         <!-- 标题栏 -->
@@ -227,16 +230,34 @@ onUnmounted(() => {
 
 
 <style scoped>
-.slide-x-enter-active,
-.slide-x-leave-active {
-    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+.slide-fg-r-enter-active,
+.slide-fg-r-leave-active {
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow-color 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: -1rem 0 2rem rgba(0, 0, 0, 0.05);
 }
 
-.slide-x-enter-from {
+.slide-fg-r-enter-from {
     transform: translateX(100%);
 }
 
-.slide-x-leave-to {
+.slide-fg-r-leave-to {
     transform: translateX(100%);
+}
+
+.slide-bg-l-enter-active {
+    transition: transform 0.5s ease;
+}
+
+.slide-bg-l-leave-active {
+    transition: transform 0.5s ease;
+}
+
+.slide-bg-l-enter-from {
+    transform: translateX(-20%);
+}
+
+.slide-bg-l-leave-to {
+    transform: translateX(-20%);
 }
 </style>
