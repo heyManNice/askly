@@ -3,8 +3,7 @@
     <n class="flex flex-row h-screen">
         <!-- 电脑端导航栏 -->
         <transition name="flex-scale-x">
-            <n v-if="screenWidth >= BP.sm"
-                class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
+            <n v-if="screenWidth >= BP.sm" class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 ">
                 <!-- 电脑导航插槽 -->
                 <slot name="desktop-nav" />
             </n>
@@ -13,8 +12,8 @@
         <n class="flex-1 flex flex-row relative">
             <!-- 列表选项区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-bg-l' : 'flex-scale-x'">
-                <n v-if="currentPage !== 'sub-page'"
-                    class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
+                <n v-if="currentPage === 'top-page' || screenWidth >= BP.md"
+                    class="w-full h-full md:w-60 md:border-l border-gray-200 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 操作列表插槽 -->
                     <slot name="top-page" :page="page" />
                     <!-- 手机版导航区 -->
@@ -126,15 +125,13 @@ onUnmounted(() => {
 
 .flex-scale-x-enter-active,
 .flex-scale-x-leave-active {
-    transition: width 0.5s ease,
-        opacity 0.5s ease;
+    transition: width 0.5s ease;
     overflow: hidden;
 }
 
 .flex-scale-x-enter-from,
 .flex-scale-x-leave-to {
     width: 0;
-    opacity: 0;
 }
 
 .flex-scale-y-enter-active,

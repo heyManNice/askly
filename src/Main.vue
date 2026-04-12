@@ -10,16 +10,14 @@
             <MobileNav />
         </template>
 
-        <!-- 页面列表区域 -->
+        <!-- 一级内容区域 -->
         <template #top-page="{ page }">
-            <!-- 会话页面组件（一级面板） -->
-            <Conversations panel="top-page" :page="page" />
+            <Top :page="page" />
         </template>
 
-        <!-- 内容区域 -->
+        <!-- 二级内容区域 -->
         <template #sub-page="{ page }">
-            <!-- 会话页面组件（二级面板） -->
-            <Conversations panel="sub-page" :page="page" />
+            <Sub :page="page" />
         </template>
     </Mountain>
 </template>
@@ -27,5 +25,6 @@
 import Mountain from '@layouts/Mountain.vue';
 import DesktopNav from '@components/DesktopNav.vue';
 import MobileNav from '@components/MobileNav.vue';
-import Conversations from '@pages/Conversations.vue';
+import Top from './pages/Conversations/Top.vue';
+import Sub from './pages/Conversations/Sub.vue';
 </script>
