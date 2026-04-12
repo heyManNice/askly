@@ -3,10 +3,10 @@
     <img class="w-10 h-10 rounded flex-none object-cover" :src="avatar" alt="avatar">
     <!-- 导航图标 -->
     <n class="flex-1 flex flex-col gap-1">
-        <template v-for="route in routes" :key="route.id">
+        <template v-for="(route, i) in routes" :key="route.id">
             <n class="p-2 rounded hover:bg-gray-100 cursor-pointer" :class="{
-                'bg-gray-100': route.id === 'conversations',
-            }" :title="route.label">
+                'bg-gray-100': i === selectedRoute,
+            }" :title="route.label" @click="selectedRoute = i">
                 <component :is="route.icon" />
             </n>
         </template>
@@ -26,4 +26,9 @@ import {
 import {
     routes
 } from '@routes/main';
+
+import {
+    selectedRoute
+} from '@routes/main';
+
 </script>

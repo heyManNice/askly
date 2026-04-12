@@ -17,9 +17,9 @@
                     <!-- 一级内容插槽 -->
                     <slot name="top-page" :page="page" />
                     <!-- 手机版导航区 -->
-                    <transition name="flex-scale-y">
+                    <transition name="slide-fg-b">
                         <n v-if="screenWidth < BP.sm"
-                            class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
+                            class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-5 pt-2 pb-1">
                             <!-- 手机导航插槽 -->
                             <slot name="mobile-nav" :page="page" />
                         </n>
@@ -137,17 +137,15 @@ onUnmounted(() => {
     width: 0;
 }
 
-/* flex y轴缩小动画 */
-.flex-scale-y-enter-active,
-.flex-scale-y-leave-active {
-    transition: height 0.5s ease,
-        opacity 0.5s ease;
-    overflow: hidden;
+/* 向下滑动动画 */
+.slide-fg-b-enter-active,
+.slide-fg-b-leave-active {
+    transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
-.flex-scale-y-enter-from,
-.flex-scale-y-leave-to {
-    height: 0;
+.slide-fg-b-enter-from,
+.slide-fg-b-leave-to {
+    transform: translateY(100%);
     opacity: 0;
 }
 </style>

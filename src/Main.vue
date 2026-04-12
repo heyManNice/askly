@@ -12,12 +12,12 @@
 
         <!-- 一级内容区域 -->
         <template #top-page="{ page }">
-            <Top :page="page" />
+            <component :is="routes[selectedRoute].top" :page="page" />
         </template>
 
         <!-- 二级内容区域 -->
         <template #sub-page="{ page }">
-            <Sub :page="page" />
+            <component :is="routes[selectedRoute].sub" :page="page" />
         </template>
     </Mountain>
 </template>
@@ -25,6 +25,8 @@
 import Mountain from '@layouts/Mountain.vue';
 import DesktopNav from '@components/DesktopNav.vue';
 import MobileNav from '@components/MobileNav.vue';
-import Top from '@pages/conversations/Top.vue';
-import Sub from '@pages/conversations/Sub.vue';
+import {
+    routes,
+    selectedRoute
+} from '@routes/main';
 </script>
