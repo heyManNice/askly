@@ -43,18 +43,14 @@ import {
     VscPin
 } from 'vue-icons-plus/vsc';
 
-
-type PageSwitcher = {
-    toTopPage: () => void;
-    toSubPage: () => void;
-};
-
+import type {
+    PageSwitcher
+} from '@layouts/Mountain.types';
 const props = defineProps<{
     page: PageSwitcher;
 }>();
 
 const page = props.page;
-
 
 type MediaButton = {
     icon: typeof FiFolder;

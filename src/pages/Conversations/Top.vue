@@ -38,15 +38,12 @@ import xiaomi from '@images/xiaomi.jpg';
 import doubao from '@images/doubao.jpg';
 import gpt from '@images/gpt.jpg';
 
-type PageSwitcher = {
-    toTopPage: () => void;
-    toSubPage: () => void;
-};
-
+import type {
+    PageSwitcher
+} from '@layouts/Mountain.types';
 const props = defineProps<{
     page: PageSwitcher;
 }>();
-
 const page = props.page;
 
 const conversations = [
