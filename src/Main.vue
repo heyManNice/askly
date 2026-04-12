@@ -2,37 +2,11 @@
     <Mountain>
         <!-- 电脑版导航栏 -->
         <template #desktop-nav>
-            <!-- 头像 -->
-            <img class="w-10 h-10 rounded flex-none object-cover" :src="avatar" alt="avatar">
-            <!-- 导航图标 -->
-            <n class="flex-1 flex flex-col gap-1">
-                <template v-for="route in routes" :key="route.id">
-                    <n class="p-2 rounded hover:bg-gray-100 cursor-pointer" :class="{
-                        'bg-gray-100': route.id === 'conversations',
-                    }" :title="route.label">
-                        <component :is="route.icon" />
-                    </n>
-                </template>
-            </n>
-            <!-- 菜单按钮 -->
-            <n class="p-2 rounded hover:bg-gray-100">
-                <FiMenu class="cursor-pointer" />
-            </n>
+            <DesktopNav />
         </template>
         <!-- 手机版导航栏 -->
         <template #mobile-nav>
-            <!-- 导航图标 -->
-            <template v-for="route in routes.slice(0, 2)" :key="route.id">
-                <n class="flex flex-col items-center cursor-pointer">
-                    <component :is="route.icon" />
-                    <n class="text-xs">{{ route.label }}</n>
-                </n>
-            </template>
-            <!-- 额外的导航项 -->
-            <n class="flex flex-col items-center cursor-pointer">
-                <FiMenu />
-                <n class="text-xs">更多</n>
-            </n>
+            <MobileNav />
         </template>
         <!-- 页面列表区域 -->
         <template #list-panel="{ page }">
@@ -100,14 +74,7 @@
     </Mountain>
 </template>
 <script lang="ts" setup>
-import avatar from './image/avatar.jpg';
 import {
-    FiMessageSquare,
-    FiServer,
-    FiUsers,
-    FiMenu,
-    FiShoppingBag,
-    FiDatabase,
     FiMoreHorizontal,
     FiFolder,
     FiImage,
@@ -119,6 +86,8 @@ import {
 } from 'vue-icons-plus/vsc';
 
 import Mountain from './layouts/Mountain.vue';
+import DesktopNav from './components/DesktopNav.vue';
+import MobileNav from './components/MobileNav.vue';
 
 import windowm from "@eziapp-org/bridge/windowm";
 
@@ -132,40 +101,6 @@ function handleMouseDown(event: MouseEvent) {
     }
 }
 
-type Route = {
-    id: string;
-    label: string;
-    icon: typeof FiMessageSquare;
-};
-
-const routes: Route[] = [
-    {
-        id: 'conversations',
-        label: '会话',
-        icon: FiMessageSquare
-    },
-    {
-        id: 'roles',
-        label: '角色',
-        icon: FiUsers
-    },
-    {
-        id: 'apis',
-        label: '接口',
-        icon: FiServer
-    },
-    {
-        id: 'database',
-        label: '数据库',
-        icon: FiDatabase
-    },
-    {
-        id: 'resources',
-        label: '资源',
-        icon: FiShoppingBag
-    }
-];
-
 // 会话列表
 type Conversation = {
     id: number;
@@ -175,9 +110,9 @@ type Conversation = {
     updatedAt: string;
 };
 
-import xiaomi from './image/xiaomi.jpg';
-import doubao from './image/doubao.jpg';
-import gpt from './image/gpt.jpg';
+import xiaomi from './images/xiaomi.jpg';
+import doubao from './images/doubao.jpg';
+import gpt from './images/gpt.jpg';
 
 const conversations: Conversation[] = [
     {
