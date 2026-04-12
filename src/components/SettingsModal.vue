@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import { useSettingsStore } from "../stores/settings";
-import { useUiStore } from "../stores/ui";
+import { useSettingsStore } from "@stores/settings";
+import { useUiStore } from "@stores/ui";
 
 const settingsStore = useSettingsStore();
 const uiStore = useUiStore();

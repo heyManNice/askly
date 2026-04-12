@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useChatStore } from "../stores/chat";
-import { useUiStore } from "../stores/ui";
+import { useChatStore } from "@stores/chat";
+import { useUiStore } from "@stores/ui";
 
 const chatStore = useChatStore();
 const uiStore = useUiStore();

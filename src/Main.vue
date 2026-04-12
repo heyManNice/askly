@@ -85,9 +85,9 @@ import {
     VscPin
 } from 'vue-icons-plus/vsc';
 
-import Mountain from './layouts/Mountain.vue';
-import DesktopNav from './components/DesktopNav.vue';
-import MobileNav from './components/MobileNav.vue';
+import Mountain from '@layouts/Mountain.vue';
+import DesktopNav from '@components/DesktopNav.vue';
+import MobileNav from '@components/MobileNav.vue';
 
 import windowm from "@eziapp-org/bridge/windowm";
 
@@ -110,9 +110,9 @@ type Conversation = {
     updatedAt: string;
 };
 
-import xiaomi from './images/xiaomi.jpg';
-import doubao from './images/doubao.jpg';
-import gpt from './images/gpt.jpg';
+import xiaomi from '@images/xiaomi.jpg';
+import doubao from '@images/doubao.jpg';
+import gpt from '@images/gpt.jpg';
 
 const conversations: Conversation[] = [
     {

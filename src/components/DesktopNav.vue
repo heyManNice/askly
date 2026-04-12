@@ -17,7 +17,7 @@
     </n>
 </template>
 <script lang="ts" setup>
-import avatar from '../images/avatar.jpg';
+import avatar from '@images/avatar.jpg';
 
 import {
     FiMenu,
@@ -25,5 +25,5 @@ import {
 
 import {
     routes
-} from '../routes/main';
+} from '@routes/main';
 </script>

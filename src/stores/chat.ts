@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
-import { streamAssistant, type ChatMessage } from "../services/llm";
-import { useSettingsStore } from "./settings";
+import { streamAssistant, type ChatMessage } from "@services/llm";
+import { useSettingsStore } from "@stores/settings";
 
 const CHAT_DB_NAME = "ezi-ai-db";
 const CHAT_DB_VERSION = 2;

@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "ignoreDeprecations": "6.0",
         "target": "ES2022",
         "useDefineForClassFields": true,
         "lib": [
@@ -10,6 +11,33 @@
         "module": "ESNext",
         "skipLibCheck": true,
         "moduleResolution": "bundler",
+        "baseUrl": ".",
+        "paths": {
+            "@src/*": [
+                "src/*"
+            ],
+            "@components/*": [
+                "src/components/*"
+            ],
+            "@directives/*": [
+                "src/directives/*"
+            ],
+            "@images/*": [
+                "src/images/*"
+            ],
+            "@layouts/*": [
+                "src/layouts/*"
+            ],
+            "@routes/*": [
+                "src/routes/*"
+            ],
+            "@services/*": [
+                "src/services/*"
+            ],
+            "@stores/*": [
+                "src/stores/*"
+            ]
+        },
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,

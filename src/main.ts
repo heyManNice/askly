@@ -1,9 +1,9 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
-import Main from "./Main.vue";
-import diffHtmlDirective from "./directives/diffHtml";
-import "./main.css";
+import Main from "@src/Main.vue";
+import diffHtmlDirective from "@directives/diffHtml";
+import "@src/main.css";
 
 const app = createApp(Main);
 

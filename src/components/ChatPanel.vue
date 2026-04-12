@@ -4,8 +4,8 @@ import MarkdownIt from "markdown-it";
 import texmath from "markdown-it-texmath";
 import katex from "katex";
 import DOMPurify from "dompurify";
-import { useChatStore } from "../stores/chat";
-import { useSettingsStore } from "../stores/settings";
+import { useChatStore } from "@stores/chat";
+import { useSettingsStore } from "@stores/settings";
 
 import "katex/dist/katex.min.css";
 

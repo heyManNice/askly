@@ -20,5 +20,5 @@ import {
 
 import {
     routes
-} from '../routes/main';
+} from '@routes/main';
 </script>

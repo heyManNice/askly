@@ -1,6 +1,6 @@
 import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";
-import type { AssistantSettings } from "../stores/settings";
+import type { AssistantSettings } from "@stores/settings";
 
 export type ChatRole = "user" | "assistant";
 
