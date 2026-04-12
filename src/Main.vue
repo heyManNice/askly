@@ -2,31 +2,33 @@
     <!-- 总容器 -->
     <n class="flex flex-row h-screen">
         <!-- 电脑边栏导航 -->
-        <n v-if="screenWidth >= 640"
-            class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
-            <!-- 头像 -->
-            <img class="w-10 rounded" :src="avatar" alt="avatar">
-            <!-- 操作按钮区 -->
-            <n class="flex-1 flex flex-col gap-1">
-                <template v-for="route in routes" :key="route.name">
-                    <!-- 外面的包围样式 -->
-                    <n class="p-2 rounded hover:bg-gray-100" :class="{
-                        'bg-gray-100': route.name === 'conversations',
-                    }">
-                        <!-- 里面的图标 -->
-                        <component :is="route.icon" class="cursor-pointer" />
-                    </n>
-                </template>
+        <transition name="flex-scale-x">
+            <n v-if="screenWidth >= 640"
+                class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
+                <!-- 头像 -->
+                <img class="w-10 h-10 rounded flex-none object-cover" :src="avatar" alt="avatar">
+                <!-- 操作按钮区 -->
+                <n class="flex-1 flex flex-col gap-1">
+                    <template v-for="route in routes" :key="route.name">
+                        <!-- 外面的包围样式 -->
+                        <n class="p-2 rounded hover:bg-gray-100" :class="{
+                            'bg-gray-100': route.name === 'conversations',
+                        }">
+                            <!-- 里面的图标 -->
+                            <component :is="route.icon" class="cursor-pointer" />
+                        </n>
+                    </template>
+                </n>
+                <!-- 菜单按钮区 -->
+                <n class="p-2 rounded hover:bg-gray-100">
+                    <FiMenu class="cursor-pointer" />
+                </n>
             </n>
-            <!-- 菜单按钮区 -->
-            <n class="p-2 rounded hover:bg-gray-100">
-                <FiMenu class="cursor-pointer" />
-            </n>
-        </n>
+        </transition>
         <!-- 导航页面区 -->
         <n class="flex-1 flex flex-row relative">
             <!-- 功能列表区 -->
-            <transition :name="screenWidth < 768 ? 'slide-bg-l' : 'disable'">
+            <transition :name="screenWidth < 768 ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="screenWidth >= 768 || !isShowConversation"
                     class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 搜索框 -->
@@ -62,21 +64,23 @@
                         </n>
                     </n>
                     <!-- 手机版底部的bar导航 -->
-                    <n v-if="screenWidth < 640"
-                        class="flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
-                        <n class="flex flex-col items-center">
-                            <FiMessageSquare />
-                            <n class="text-xs">会话</n>
+                    <transition name="flex-scale-y">
+                        <n v-if="screenWidth < 640"
+                            class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
+                            <n class="flex flex-col items-center">
+                                <FiMessageSquare />
+                                <n class="text-xs">会话</n>
+                            </n>
+                            <n class="flex flex-col items-center">
+                                <FiUsers />
+                                <n class="text-xs">角色</n>
+                            </n>
+                            <n class="flex flex-col items-center">
+                                <FiMenu />
+                                <n class="text-xs">更多</n>
+                            </n>
                         </n>
-                        <n class="flex flex-col items-center">
-                            <FiUsers />
-                            <n class="text-xs">角色</n>
-                        </n>
-                        <n class="flex flex-col items-center">
-                            <FiMenu />
-                            <n class="text-xs">更多</n>
-                        </n>
-                    </n>
+                    </transition>
                 </n>
             </transition>
             <!-- 导航内容区 -->
@@ -258,5 +262,31 @@ onUnmounted(() => {
 
 .slide-bg-l-leave-to {
     transform: translateX(-20%);
+}
+
+/* flex x轴 宽度动画 */
+.flex-scale-x-enter-active,
+.flex-scale-x-leave-active {
+    transition: width 0.5s ease;
+    overflow: hidden;
+}
+
+.flex-scale-x-enter-from,
+.flex-scale-x-leave-to {
+    width: 0;
+}
+
+/* flex y轴 高度动画 */
+.flex-scale-y-enter-active,
+.flex-scale-y-leave-active {
+    transition: height 0.5s ease,
+        opacity 0.5s ease;
+    overflow: hidden;
+}
+
+.flex-scale-y-enter-from,
+.flex-scale-y-leave-to {
+    height: 0;
+    opacity: 0;
 }
 </style>
