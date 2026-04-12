@@ -84,7 +84,7 @@ onUnmounted(() => {
 .slide-enter-from,
 .slide-leave-to {
     opacity: 0;
-    transform: scaleY(0.8) translateY(100%);
+    transform: scale(0.7) translateY(100%);
 }
 
 .slide-move {
