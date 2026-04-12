@@ -267,13 +267,15 @@ onUnmounted(() => {
 /* flex x轴 宽度动画 */
 .flex-scale-x-enter-active,
 .flex-scale-x-leave-active {
-    transition: width 0.5s ease;
+    transition: width 0.5s ease,
+        opacity 0.5s ease;
     overflow: hidden;
 }
 
 .flex-scale-x-enter-from,
 .flex-scale-x-leave-to {
     width: 0;
+    opacity: 0;
 }
 
 /* flex y轴 高度动画 */
