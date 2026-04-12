@@ -48,8 +48,8 @@
     },
     "include": [
         "src/**/*.ts",
-        "src/**/*.d.ts",
         "src/**/*.vue",
+        "types/**/*.d.ts",
         "vite.config.ts"
     ]
 }
