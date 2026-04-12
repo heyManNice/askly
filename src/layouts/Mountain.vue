@@ -3,24 +3,23 @@
     <n class="flex flex-row h-screen">
         <!-- 电脑端导航栏 -->
         <transition name="flex-scale-x">
-            <n v-if="screenWidth >= 640"
+            <n v-if="screenWidth >= BP.sm"
                 class="z-60 bg-white w-15 shrink-0 flex flex-col gap-3 items-center pb-2 md:border-r border-gray-200">
                 <!-- 电脑导航插槽 -->
                 <slot name="desktop-nav" />
             </n>
         </transition>
-
         <!-- 导航页面区域 -->
         <n class="flex-1 flex flex-row relative">
             <!-- 列表选项区域 -->
-            <transition :name="screenWidth < 768 ? 'slide-bg-l' : 'flex-scale-x'">
+            <transition :name="screenWidth < BP.md ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="currentPage !== 'content'"
                     class="w-full h-full md:w-60 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 操作列表插槽 -->
                     <slot name="list-panel" :page="page" />
                     <!-- 手机版导航区 -->
                     <transition name="flex-scale-y">
-                        <n v-if="screenWidth < 640"
+                        <n v-if="screenWidth < BP.sm"
                             class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
                             <!-- 手机导航插槽 -->
                             <slot name="mobile-nav" :page="page" />
@@ -30,7 +29,7 @@
             </transition>
 
             <!-- 内容区域 -->
-            <transition :name="screenWidth < 768 ? 'slide-fg-r' : 'disable'">
+            <transition :name="screenWidth < BP.md ? 'slide-fg-r' : 'disable'">
                 <n v-if="currentPage !== 'list'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
                     <!-- 内容区域插槽 -->
@@ -48,28 +47,36 @@ import {
     onUnmounted
 } from 'vue';
 
-
 type CurrentPage = 'list' | 'content' | 'both';
 
+const BP: Readonly<Record<'sm' | 'md' | 'lg' | 'xl' | '2xl', number>> = {
+    sm: 640,
+    md: 768,
+    lg: 1024,
+    xl: 1280,
+    '2xl': 1536
+};
+
 const screenWidth = ref(window.innerWidth);
-const currentPage = ref<CurrentPage>(screenWidth.value >= 768 ? 'both' : 'list');
+
+const currentPage = ref<CurrentPage>(screenWidth.value >= BP.md ? 'both' : 'list');
 
 function syncLayoutState() {
     screenWidth.value = window.innerWidth;
 
-    if (screenWidth.value >= 768) {
+    if (screenWidth.value >= BP.md) {
         currentPage.value = 'both';
     }
 }
 
 const page = {
     toContent() {
-        if (screenWidth.value < 768) {
+        if (screenWidth.value < BP.md) {
             currentPage.value = 'content';
         }
     },
     toList() {
-        if (screenWidth.value < 768) {
+        if (screenWidth.value < BP.md) {
             currentPage.value = 'list';
         }
     }
