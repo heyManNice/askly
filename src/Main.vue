@@ -94,8 +94,12 @@
                         <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
                         <!-- 按钮操作区 -->
                         <n class="mr-2 flex gap-2">
-                            <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
-                            <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+                            <n title="固定在顶层">
+                                <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+                            </n>
+                            <n title="更多">
+                                <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+                            </n>
                         </n>
                     </n>
                     <!-- 信息显示区域 -->
@@ -104,8 +108,9 @@
                     <n class="h-40 flex flex-col shrink-0 border-t border-gray-200 px-2 py-1 gap-1">
                         <!-- 功能选择区 -->
                         <n class="flex flex-row gap-2">
-                            <FiFolder class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
-                            <FiImage class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+                            <n v-for="btn in mediaButtons" :key="btn.label" :title="btn.label">
+                                <component :is="btn.icon" class="w-5 h-5  cursor-pointer hover:bg-gray-100 rounded" />
+                            </n>
                         </n>
                         <!-- 输入框 -->
                         <textarea class="flex-1 resize-none" type="text"
@@ -231,6 +236,22 @@ onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
 });
 
+// 聊天输入框的媒体按钮
+type MediaButton = {
+    icon: typeof FiFolder;
+    label: string;
+};
+
+const mediaButtons: MediaButton[] = [
+    {
+        icon: FiFolder,
+        label: '文件'
+    },
+    {
+        icon: FiImage,
+        label: '图片'
+    }
+];
 </script>
 
 
