@@ -10,11 +10,11 @@
         </transition>
         <!-- 导航页面区域 -->
         <n class="flex-1 flex flex-row relative">
-            <!-- 列表选项区域 -->
+            <!-- 一级内容区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="currentPage === 'top-page' || screenWidth >= BP.md"
                     class="w-full h-full md:w-60 md:border-l border-gray-200 flex flex-col gap-2 px-2 md:static absolute">
-                    <!-- 操作列表插槽 -->
+                    <!-- 一级内容插槽 -->
                     <slot name="top-page" :page="page" />
                     <!-- 手机版导航区 -->
                     <transition name="flex-scale-y">
@@ -27,11 +27,11 @@
                 </n>
             </transition>
 
-            <!-- 内容区域 -->
+            <!-- 二级内容区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-fg-r' : 'disable'">
                 <n v-if="currentPage !== 'top-page'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
-                    <!-- 内容区域插槽 -->
+                    <!-- 二级内容插槽 -->
                     <slot name="sub-page" :page="page" />
                 </n>
             </transition>
@@ -92,6 +92,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 前景页面右侧滑入滑出动画 */
 .slide-fg-r-enter-active,
 .slide-fg-r-leave-active {
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
@@ -107,6 +108,7 @@ onUnmounted(() => {
     transform: translateX(100%);
 }
 
+/* 背景页面左侧滑入滑出动画 */
 .slide-bg-l-enter-active {
     transition: transform 0.5s ease;
 }
@@ -123,6 +125,7 @@ onUnmounted(() => {
     transform: translateX(-20%);
 }
 
+/* flex x轴缩小动画 */
 .flex-scale-x-enter-active,
 .flex-scale-x-leave-active {
     transition: width 0.5s ease;
@@ -134,6 +137,7 @@ onUnmounted(() => {
     width: 0;
 }
 
+/* flex y轴缩小动画 */
 .flex-scale-y-enter-active,
 .flex-scale-y-leave-active {
     transition: height 0.5s ease,
