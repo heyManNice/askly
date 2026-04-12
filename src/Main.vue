@@ -25,6 +25,6 @@
 import Mountain from '@layouts/Mountain.vue';
 import DesktopNav from '@components/DesktopNav.vue';
 import MobileNav from '@components/MobileNav.vue';
-import Top from './pages/Conversations/Top.vue';
-import Sub from './pages/Conversations/Sub.vue';
+import Top from '@pages/conversations/Top.vue';
+import Sub from '@pages/conversations/Sub.vue';
 </script>
