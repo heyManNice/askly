@@ -13,7 +13,7 @@
             <!-- 一级内容区域 -->
             <transition :name="screenWidth < BP.md ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="currentPage === 'top-page' || screenWidth >= BP.md"
-                    class="w-full h-full md:w-60 md:border-l border-gray-200 flex flex-col gap-2 px-2 md:static absolute">
+                    class="w-full h-full md:w-60 sm:border-l border-gray-200 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 一级内容插槽 -->
                     <slot name="top-page" :page="page" />
                     <!-- 手机版导航区 -->
