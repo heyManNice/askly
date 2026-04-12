@@ -9,13 +9,13 @@
                 <img class="w-10 h-10 rounded flex-none object-cover" :src="avatar" alt="avatar">
                 <!-- 操作按钮区 -->
                 <n class="flex-1 flex flex-col gap-1">
-                    <template v-for="route in routes" :key="route.name">
+                    <template v-for="route in routes" :key="route.id">
                         <!-- 外面的包围样式 -->
-                        <n class="p-2 rounded hover:bg-gray-100" :class="{
-                            'bg-gray-100': route.name === 'conversations',
-                        }">
+                        <n class="p-2 rounded hover:bg-gray-100 cursor-pointer" :class="{
+                            'bg-gray-100': route.id === 'conversations',
+                        }" :title="route.label">
                             <!-- 里面的图标 -->
-                            <component :is="route.icon" class="cursor-pointer" />
+                            <component :is="route.icon" />
                         </n>
                     </template>
                 </n>
@@ -67,15 +67,13 @@
                     <transition name="flex-scale-y">
                         <n v-if="screenWidth < 640"
                             class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-10 pt-2 pb-1">
-                            <n class="flex flex-col items-center">
-                                <FiMessageSquare />
-                                <n class="text-xs">会话</n>
-                            </n>
-                            <n class="flex flex-col items-center">
-                                <FiUsers />
-                                <n class="text-xs">角色</n>
-                            </n>
-                            <n class="flex flex-col items-center">
+                            <template v-for="route in routes.slice(0, 2)" :key="route.id">
+                                <n class="flex flex-col items-center cursor-pointer">
+                                    <component :is="route.icon" />
+                                    <n class="text-xs">{{ route.label }}</n>
+                                </n>
+                            </template>
+                            <n class="flex flex-col items-center cursor-pointer">
                                 <FiMenu />
                                 <n class="text-xs">更多</n>
                             </n>
@@ -137,29 +135,35 @@ import {
     VscPin
 } from 'vue-icons-plus/vsc';
 type Route = {
-    name: string;
+    id: string;
+    label: string;
     icon: typeof FiMessageSquare;
 };
 
 const routes: Route[] = [
     {
-        name: 'conversations',
+        id: 'conversations',
+        label: '会话',
         icon: FiMessageSquare
     },
     {
-        name: 'roles',
+        id: 'roles',
+        label: '角色',
         icon: FiUsers
     },
     {
-        name: 'apis',
+        id: 'apis',
+        label: '接口',
         icon: FiServer
     },
     {
-        name: 'database',
+        id: 'database',
+        label: '数据库',
         icon: FiDatabase
     },
     {
-        name: 'resources',
+        id: 'resources',
+        label: '资源',
         icon: FiShoppingBag
     }
 ];
