@@ -86,14 +86,14 @@
                 <n v-if="isShowConversation"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
                     <!-- 标题栏 -->
-                    <n class="flex flex-row px-2 pb-2 border-b border-gray-200">
+                    <n @mousedown="handleMouseDown" class="flex flex-row px-2 pb-2 border-b border-gray-200">
                         <!-- mr5是为了让标题居中 -->
-                        <FiChevronLeft @click="isShowConversation = false"
+                        <FiChevronLeft @mousedown.stop @click="isShowConversation = false"
                             class="w-5 cursor-pointer hover:bg-gray-100 rounded block md:hidden max-sm:mr-5" />
                         <!-- 标题文字 -->
                         <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
                         <!-- 按钮操作区 -->
-                        <n class="mr-2 flex gap-2">
+                        <n @mousedown.stop class="mr-2 flex gap-2">
                             <n title="固定在顶层">
                                 <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
                             </n>
@@ -139,6 +139,20 @@ import {
 import {
     VscPin
 } from 'vue-icons-plus/vsc';
+
+import windowm from "@eziapp-org/bridge/windowm";
+
+// 鼠标左键拖动标题栏
+function handleMouseDown(event: MouseEvent) {
+    if (event.button === 0) {
+        windowm.getCurrentWindow()
+            .then(win => {
+                win.drag();
+            });
+    }
+}
+
+
 type Route = {
     id: string;
     label: string;
