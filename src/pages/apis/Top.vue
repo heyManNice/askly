@@ -11,11 +11,11 @@
             }">
             <!-- 上方的名称和修改时间 -->
             <n class="flex flex-row">
-                <n class="mr-auto">{{ api.name }}</n>
+                <n class="mr-auto truncate">{{ api.name }}</n>
                 <n class="text-xs text-gray-500">{{ new Date(api.updatedAt).toLocaleDateString() }}</n>
             </n>
             <!-- 下方的地址 -->
-            <n class="text-xs text-gray-500">{{ api.url }}</n>
+            <n class="text-xs text-gray-500 truncate">{{ api.url }}</n>
         </n>
     </n>
 </template>
