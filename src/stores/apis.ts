@@ -74,6 +74,8 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
 
     function toEditApiPage(api: DBKey<typeof apis>) {
         selected.value = api;
+        console.log(selected);
+
         pageController.toSubPage();
     }
 
