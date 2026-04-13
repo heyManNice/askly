@@ -8,9 +8,13 @@
         <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
         <!-- 会话操作按钮 -->
         <n @mousedown.stop class="mr-2 flex gap-2">
-            <n title="固定在顶层">
-                <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
+            <!-- 固定在顶层 -->
+            <n :title="pinStore.isPinned ? '取消固定' : '固定在顶层'">
+                <VscPin class="w-5 cursor-pointer hover:bg-gray-100 rounded " :class="{
+                    '-rotate-45 text-blue-500': pinStore.isPinned
+                }" @click="pinStore.togglePin()" />
             </n>
+            <!-- 更多选项 -->
             <n title="更多">
                 <FiMoreHorizontal class="w-5 cursor-pointer hover:bg-gray-100 rounded" />
             </n>
@@ -51,6 +55,12 @@ const props = defineProps<{
 }>();
 
 const page = props.page;
+
+import {
+    usePinStore
+} from '@stores/pin';
+
+const pinStore = usePinStore();
 
 type MediaButton = {
     icon: typeof FiFolder;
