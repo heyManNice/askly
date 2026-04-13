@@ -39,9 +39,16 @@ import {
 } from '@stores/more';
 const mspc = useMoreSubPageController();
 
+import {
+    usePageController
+} from '@layouts/Mountain.controller';
+
+const pageController = usePageController();
+
 pufferStore.onResize((m) => {
     if (m !== 'compact') {
         mspc.isShowMorePage = false;
+        return;
     }
     if (selectedRoute.value < 2) {
         // 因为开头的两个必显示，就不处理了
@@ -50,6 +57,9 @@ pufferStore.onResize((m) => {
     // 如果当前选中的导航图标已经不显示，那么就显示more
     if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
         mspc.isShowMorePage = true;
+        // 如果要显示额外的导航页面，就先展示一级页面
+        pageController.toTopPage();
+
     }
 });
 
