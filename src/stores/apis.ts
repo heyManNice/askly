@@ -56,18 +56,13 @@ import {
     usePageController
 } from '@layouts/Mountain.controller';
 
-// 选中api
-export const useSelectedApiStore = defineStore('selectedApi', () => {
+// api二级页面控制器
+export const useApiSubPageController = defineStore('apiSubPageController', () => {
     const pageController = usePageController();
-    const selectedApi = ref<DBKey<typeof apis> | null>(null);
-    // 选中一个api
-    function selectApi(api: DBKey<typeof apis>) {
-        selectedApi.value = api;
-        pageController.toSubPage();
-    }
-    // 新建一个api
-    function createApi() {
-        selectedApi.value = {
+    const selected = ref<DBKey<typeof apis> | null>(null);
+
+    function toCreateApiPage() {
+        selected.value = {
             name: '',
             url: '',
             key: '',
@@ -76,9 +71,20 @@ export const useSelectedApiStore = defineStore('selectedApi', () => {
         };
         pageController.toSubPage();
     }
+
+    function toEditApiPage(api: DBKey<typeof apis>) {
+        selected.value = api;
+        pageController.toSubPage();
+    }
+
+    function toApiListPage() {
+        selected.value = null;
+        pageController.toTopPage();
+    }
     return {
-        selectedApi,
-        selectApi,
-        createApi,
+        selected,
+        toCreateApiPage,
+        toEditApiPage,
+        toApiListPage
     };
 });

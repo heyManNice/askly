@@ -1,18 +1,18 @@
 <template>
     <MobileAppBar />
-    <n v-if="selectedApiStore.selectedApi" class="p-4 flex flex-col gap-4">
-        <n>id: {{ selectedApiStore.selectedApi?.id ?? 'new' }}</n>
+    <n v-if="selected" class="p-4 flex flex-col gap-4">
+        <n>id: {{ selected?.id ?? 'new' }}</n>
         <n>
             <n>名称：</n>
-            <input :value="selectedApiStore.selectedApi?.name">
+            <input :value="selected?.name">
         </n>
         <n>
             <n>地址：</n>
-            <input :value="selectedApiStore.selectedApi?.url">
+            <input :value="selected?.url">
         </n>
         <n>
             <n>密钥：</n>
-            <input :value="selectedApiStore.selectedApi?.key">
+            <input :value="selected?.key">
         </n>
         <button>保存</button>
         <button @click="onDelApi">删除</button>
@@ -21,23 +21,23 @@
 <script lang="ts" setup>
 import MobileAppBar from '@components/MobileAppBar.vue';
 import {
-    usePageController
-} from '@layouts/Mountain.controller';
-import {
-    useSelectedApiStore, useApisStore
+    useApiSubPageController,
+    useApisStore
 } from '@stores/apis';
 
-const pageController = usePageController();
 const apisStore = useApisStore();
-const selectedApiStore = useSelectedApiStore();
+
+const {
+    selected,
+    toApiListPage
+} = useApiSubPageController();
 
 function onDelApi() {
-    const id = selectedApiStore.selectedApi?.id;
+    const id = selected?.id;
     if (!id) return;
     if (confirm('确定要删除这个接口吗？')) {
         apisStore.delApiToDb(id)
-        selectedApiStore.selectedApi = null;
-        pageController.toTopPage();
+        toApiListPage();
     }
 }
 </script>
