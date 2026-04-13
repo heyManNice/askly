@@ -36,10 +36,49 @@ export const useApisStore = defineStore('apis', () => {
         });
     }
 
+    // 删除一个api
+    function delApiToDb(id: number) {
+        apis.delete(id).then(() => {
+            updateApiList();
+        });
+    }
+
     updateApiList();
     return {
         apiList,
         updateApiList,
         addApiToDb,
+        delApiToDb,
+    };
+});
+
+import {
+    usePageController
+} from '@layouts/Mountain.controller';
+
+// 选中api
+export const useSelectedApiStore = defineStore('selectedApi', () => {
+    const pageController = usePageController();
+    const selectedApi = ref<DBKey<typeof apis> | null>(null);
+    // 选中一个api
+    function selectApi(api: DBKey<typeof apis>) {
+        selectedApi.value = api;
+        pageController.toSubPage();
+    }
+    // 新建一个api
+    function createApi() {
+        selectedApi.value = {
+            name: '',
+            url: '',
+            key: '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        pageController.toSubPage();
+    }
+    return {
+        selectedApi,
+        selectApi,
+        createApi,
     };
 });
