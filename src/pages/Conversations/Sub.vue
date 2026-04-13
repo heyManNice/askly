@@ -31,7 +31,7 @@
             </n>
         </n>
         <!-- 文字输入框 -->
-        <textarea class="flex-1 resize-none" type="text" placeholder="输入你的问题，按 Enter 发生，按 Shift + Enter 换行。" />
+        <textarea class="flex-1 resize-none" type="text" placeholder="按 Enter 发送，按 Shift + Enter 换行" />
     </n>
 </template>
 
