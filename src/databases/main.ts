@@ -52,7 +52,7 @@ class Database extends Dexie {
         type: 'user' | 'assistant' | 'system';
         // 创建时间
         createdAt: Date;
-    }>;
+    }, string>;
 
     // 聊天信息冷表
     coldMessages!: Table<{
@@ -66,7 +66,7 @@ class Database extends Dexie {
         type: 'user' | 'assistant' | 'system';
         // 创建时间
         createdAt: Date;
-    }>;
+    }, string>;
 
     constructor() {
         super('askly-database');
