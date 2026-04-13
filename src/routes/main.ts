@@ -70,7 +70,6 @@ export const routes: Route[] = [
         top: RolesTop,
         sub: RolesSub
     },
-    // 约定最后一个more只在手机上显示
     {
         id: 'more',
         label: '更多',
