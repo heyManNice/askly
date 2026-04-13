@@ -8,7 +8,7 @@
         <!-- more的导航选项 -->
         <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
             <n v-for="route in moreRoutes" :key="route.id"
-                class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer items-center"
+                class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
                 @click="pageController.toSubPage()">
                 <!-- 图标 -->
                 <component :is="route.icon" class="w-5 h-5" />

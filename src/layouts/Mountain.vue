@@ -1,6 +1,6 @@
 <template>
     <!-- 总容器 -->
-    <n class="flex flex-row h-screen dark:text-white">
+    <n class="flex flex-row h-screen dark:text-zinc-200">
         <!-- 电脑端导航栏 -->
         <transition name="flex-scale-x">
             <n v-if="pufferStore.morph !== 'compact'"
@@ -14,13 +14,13 @@
             <!-- 一级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
-                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-gray-800 flex flex-col gap-2 px-2 md:static absolute dark:bg-black">
+                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 px-2 md:static absolute dark:bg-black">
                     <!-- 一级内容插槽 -->
                     <slot name="top-page" />
                     <!-- 手机版导航区 -->
                     <transition name="slide-fg-b">
                         <n v-if="pufferStore.morph === 'compact'"
-                            class="h-14 flex z-40 bg-white dark:bg-black flex-row gap-2 p-2 border-t dark:border-gray-800 border-gray-200 justify-between px-5 pt-2 pb-1">
+                            class="h-14 flex z-40 bg-white dark:bg-black flex-row gap-2 p-2 border-t dark:border-zinc-900 border-gray-200 justify-between px-5 pt-2 pb-1">
                             <!-- 手机导航插槽 -->
                             <slot name="mobile-nav" />
                         </n>
@@ -31,7 +31,7 @@
             <!-- 二级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-fg-r' : 'disable'">
                 <n v-if="pageController.currentPage !== 'top-page'"
-                    class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white dark:bg-black dark:border-gray-800 border-gray-200 absolute md:static w-full">
+                    class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white dark:bg-black dark:border-zinc-900 border-gray-200 absolute md:static w-full">
                     <!-- 二级内容插槽 -->
                     <slot name="sub-page" />
                 </n>

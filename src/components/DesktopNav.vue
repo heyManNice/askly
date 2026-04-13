@@ -4,16 +4,16 @@
     <!-- 导航图标 -->
     <n class="flex-1 flex flex-col gap-1">
         <template v-for="(route, i) in routes" :key="route.id">
-            <n v-if="!route.hiddenOnDesktop" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+            <n v-if="!route.hiddenOnDesktop" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
                 :class="{
-                    'bg-gray-100 dark:bg-gray-800': i === selectedRoute,
+                    'bg-gray-100 dark:bg-zinc-800': i === selectedRoute,
                 }" :title="route.label" @click="selectedRoute = i">
                 <component :is="route.icon" />
             </n>
         </template>
     </n>
     <!-- 菜单按钮 -->
-    <n class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
+    <n class="p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800">
         <FiMenu class="cursor-pointer" />
     </n>
 </template>
