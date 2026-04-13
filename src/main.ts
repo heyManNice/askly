@@ -1,9 +1,9 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { cssXraySetup } from "@utils/cssXray";
 
 import Main from "@src/Main.vue";
 import diffHtmlDirective from "@directives/diffHtml";
-import { cssXraySetup } from "@utils/cssXray";
 import version from "@eziapp-org/bridge/version"
 import "@src/main.css";
 
