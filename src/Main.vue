@@ -11,13 +11,13 @@
         </template>
 
         <!-- 一级内容区域 -->
-        <template #top-page="{ page }">
-            <component :is="routes[selectedRoute].top" :page="page" />
+        <template #top-page>
+            <component :is="routes[selectedRoute].top" />
         </template>
 
         <!-- 二级内容区域 -->
-        <template #sub-page="{ page }">
-            <component :is="routes[selectedRoute].sub" :page="page" />
+        <template #sub-page>
+            <component :is="routes[selectedRoute].sub" />
         </template>
     </Mountain>
 </template>

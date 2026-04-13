@@ -13,16 +13,16 @@
         <n class="flex-1 flex flex-row relative">
             <!-- 一级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
-                <n v-if="currentPage === 'top-page' || pufferStore.morph === 'expanded'"
+                <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
                     class="w-full h-full md:w-60 sm:border-l border-gray-200 flex flex-col gap-2 px-2 md:static absolute">
                     <!-- 一级内容插槽 -->
-                    <slot name="top-page" :page="page" />
+                    <slot name="top-page" />
                     <!-- 手机版导航区 -->
                     <transition name="slide-fg-b">
                         <n v-if="pufferStore.morph === 'compact'"
                             class="h-14 flex z-40 bg-white flex-row gap-2 p-2 border-t border-gray-200 justify-between px-5 pt-2 pb-1">
                             <!-- 手机导航插槽 -->
-                            <slot name="mobile-nav" :page="page" />
+                            <slot name="mobile-nav" />
                         </n>
                     </transition>
                 </n>
@@ -30,10 +30,10 @@
 
             <!-- 二级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-fg-r' : 'disable'">
-                <n v-if="currentPage !== 'top-page'"
+                <n v-if="pageController.currentPage !== 'top-page'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white border-gray-200 absolute md:static w-full">
                     <!-- 二级内容插槽 -->
-                    <slot name="sub-page" :page="page" />
+                    <slot name="sub-page" />
                 </n>
             </transition>
         </n>
@@ -42,26 +42,24 @@
 
 <script lang="ts" setup>
 import {
-    ref
-} from 'vue';
-
-import {
     usePufferStore
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
 
 import {
+    usePageController
+} from '@layouts/Mountain.controller';
+const pageController = usePageController();
+
+import {
     selectedRoute,
     moreRouteIndex
 } from '@routes/main';
 
-type CurrentPage = 'top-page' | 'sub-page' | 'both-page';
-const currentPage = ref<CurrentPage>(pufferStore.morph === 'expanded' ? 'both-page' : 'top-page');
-
 pufferStore.onResize((m) => {
     if (m === 'expanded') {
-        currentPage.value = 'both-page';
+        pageController.currentPage = 'both-page';
     }
 
     // 如果当前在more页且切换到桌面布局，重置到第一个页面
@@ -70,19 +68,6 @@ pufferStore.onResize((m) => {
         selectedRoute.value = 0;
     }
 });
-
-const page = {
-    toSubPage() {
-        if (pufferStore.morph !== 'expanded') {
-            currentPage.value = 'sub-page';
-        }
-    },
-    toTopPage() {
-        if (pufferStore.morph !== 'expanded') {
-            currentPage.value = 'top-page';
-        }
-    }
-};
 </script>
 
 <style scoped>

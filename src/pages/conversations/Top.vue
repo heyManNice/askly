@@ -6,7 +6,7 @@
     </n>
     <!-- 会话列表区域 -->
     <n class="flex-1 flex flex-col gap-2 overflow-y-auto">
-        <n v-for="conversation in conversations" :key="conversation.id" @click="page.toSubPage()"
+        <n v-for="conversation in conversations" :key="conversation.id" @click="pageController.toSubPage()"
             class="flex items-center rounded cursor-pointer hover:bg-gray-100 gap-2">
             <!-- 头像 -->
             <img class="w-10 rounded" :src="conversation.avatar" alt="avatar">
@@ -38,13 +38,10 @@ import xiaomi from '@images/xiaomi.jpg';
 import doubao from '@images/doubao.jpg';
 import gpt from '@images/gpt.jpg';
 
-import type {
-    PageSwitcher
-} from '@layouts/Mountain.types';
-const props = defineProps<{
-    page: PageSwitcher;
-}>();
-const page = props.page;
+import {
+    usePageController
+} from '@layouts/Mountain.controller';
+const pageController = usePageController();
 
 const conversations = [
     {

@@ -2,7 +2,7 @@
     <!-- 顶部标题栏 -->
     <n @mousedown="handleMouseDown" class="flex flex-row px-2 pb-2 border-b border-gray-200">
         <!-- 左边返回图标 -->
-        <FiChevronLeft @mousedown.stop @click="page.toTopPage()"
+        <FiChevronLeft @mousedown.stop @click="pageController.toTopPage()"
             class="w-5 cursor-pointer hover:bg-gray-100 rounded block md:hidden max-sm:mr-5" />
         <!-- 标题内容 -->
         <n class="mr-auto ml-auto md:ml-0">猫小咪</n>
@@ -47,14 +47,10 @@ import {
     VscPin
 } from 'vue-icons-plus/vsc';
 
-import type {
-    PageSwitcher
-} from '@layouts/Mountain.types';
-const props = defineProps<{
-    page: PageSwitcher;
-}>();
-
-const page = props.page;
+import {
+    usePageController
+} from '@layouts/Mountain.controller';
+const pageController = usePageController();
 
 import {
     usePinStore

@@ -9,7 +9,7 @@
         <template v-for="route in routes" :key="route.id">
             <n v-if="!route.hiddenOnDesktop"
                 class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 cursor-pointer items-center"
-                @click="page.toSubPage()">
+                @click="pageController.toSubPage()">
                 <!-- 图标 -->
                 <component :is="route.icon" class="w-5 h-5" />
                 <!-- 标签 -->
@@ -27,14 +27,10 @@ import {
     FiChevronRight
 } from 'vue-icons-plus/fi'
 
-import type {
-    PageSwitcher
-} from '@layouts/Mountain.types';
-const props = defineProps<{
-    page: PageSwitcher;
-}>();
-
-const page = props.page;
+import {
+    usePageController
+} from '@layouts/Mountain.controller';
+const pageController = usePageController();
 
 
 import {
