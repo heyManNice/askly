@@ -9,6 +9,8 @@ class Database extends Dexie {
         name: string;
         // 地址
         url: string;
+        // 密钥
+        key: string;
         // 创建时间
         createdAt: Date;
         // 更新时间

@@ -1,10 +1,7 @@
 <template>
     <!-- 新建接口按钮 -->
-    <n class="h-8 flex shrink-0 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-900 rounded items-center justify-center cursor-pointer mx-2"
-        @click="apisStore.addApiToDb({
-            name: '新接口',
-            url: 'https://example.com/api'
-        })">
+    <n
+        class="h-8 flex shrink-0 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-900 rounded items-center justify-center cursor-pointer mx-2">
         新增接口
     </n>
     <n class="flex-1 flex flex-col gap-2 overflow-y-auto px-2">

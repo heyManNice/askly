@@ -23,10 +23,12 @@ export const useApisStore = defineStore('apis', () => {
     function addApiToDb(api: {
         name: string;
         url: string;
+        key: string;
     }) {
         apis.add({
             name: api.name,
             url: api.url,
+            key: api.key,
             createdAt: new Date(),
             updatedAt: new Date(),
         }).then(() => {
