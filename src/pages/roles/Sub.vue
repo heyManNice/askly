@@ -1,5 +1,6 @@
 <template>
-    <p @click="page.toTopPage()">角色：回到一级页面</p>
+    <MobileAppBar @to-top-page="page.toTopPage()" />
+    <p class="px-2">角色</p>
 </template>
 <script lang="ts" setup>
 import type {
@@ -10,4 +11,6 @@ const props = defineProps<{
 }>();
 
 const page = props.page;
+
+import MobileAppBar from '@components/MobileAppBar.vue';
 </script>
