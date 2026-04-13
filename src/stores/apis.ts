@@ -24,12 +24,32 @@ export const useApisStore = defineStore('apis', () => {
         name: string;
         url: string;
         key: string;
+        model: string;
     }) {
         apis.add({
             name: api.name,
             url: api.url,
             key: api.key,
+            model: api.model,
             createdAt: new Date(),
+            updatedAt: new Date(),
+        }).then(() => {
+            updateApiList();
+        });
+    }
+
+    // 更新一个api
+    function updateApiToDb(api: {
+        id: number;
+        name: string;
+        url: string;
+        key: string;
+        model: string;
+    }) {
+        apis.update(api.id, {
+            name: api.name,
+            url: api.url,
+            key: api.key,
             updatedAt: new Date(),
         }).then(() => {
             updateApiList();
@@ -48,6 +68,7 @@ export const useApisStore = defineStore('apis', () => {
         apiList,
         updateApiList,
         addApiToDb,
+        updateApiToDb,
         delApiToDb,
     };
 });
@@ -66,6 +87,7 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
             name: '',
             url: '',
             key: '',
+            model: '',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -74,8 +96,6 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
 
     function toEditApiPage(api: DBKey<typeof apis>) {
         selected.value = api;
-        console.log(selected);
-
         pageController.toSubPage();
     }
 

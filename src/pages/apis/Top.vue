@@ -7,7 +7,7 @@
     <n class="flex-1 flex flex-col gap-2 overflow-y-auto px-2">
         <n v-for="api in apisStore.apiList" @click="aspc.toEditApiPage(api)"
             class="flex flex-col rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer" :class="{
-                'bg-gray-100 dark:bg-zinc-800': aspc.selected?.id === api.id,
+                'bg-gray-100 dark:bg-zinc-800': ((pufferStore.morph === 'expanded') && (aspc.selected?.id === api.id)),
             }">
             <!-- 上方的名称和修改时间 -->
             <n class="flex flex-row">
@@ -25,7 +25,11 @@ import {
     useApiSubPageController
 } from '@stores/apis';
 
-const apisStore = useApisStore();
+import {
+    usePufferStore
+} from '@src/stores/puffer';
 
+const apisStore = useApisStore();
 const aspc = useApiSubPageController();
+const pufferStore = usePufferStore();
 </script>

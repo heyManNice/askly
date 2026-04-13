@@ -11,6 +11,8 @@ class Database extends Dexie {
         url: string;
         // 密钥
         key: string;
+        // 模型
+        model: string;
         // 创建时间
         createdAt: Date;
         // 更新时间
