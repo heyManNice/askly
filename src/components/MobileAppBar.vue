@@ -33,5 +33,4 @@ function handleMouseDown(event: MouseEvent) {
     }
 }
 
-
 </script>
