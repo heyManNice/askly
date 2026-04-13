@@ -2,12 +2,13 @@
     <!-- 搜索区域 -->
     <n class="h-8 flex shrink-0">
         <!-- 搜索输入框 -->
-        <input class="flex-1 px-2 bg-gray-100 rounded" type="text" placeholder="搜索">
+        <input class="flex-1 px-2 bg-gray-100 dark:bg-gray-800 dark:border-gray-800 rounded" type="text"
+            placeholder="搜索">
     </n>
     <!-- 会话列表区域 -->
     <n class="flex-1 flex flex-col gap-2 overflow-y-auto">
         <n v-for="conversation in conversations" :key="conversation.id" @click="pageController.toSubPage()"
-            class="flex items-center rounded cursor-pointer hover:bg-gray-100 gap-2">
+            class="flex items-center rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 gap-2">
             <!-- 头像 -->
             <img class="w-10 rounded" :src="conversation.avatar" alt="avatar">
             <!-- 右边的文字 -->
