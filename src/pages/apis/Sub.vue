@@ -15,7 +15,7 @@
             <input :value="selectedApiStore.selectedApi?.key">
         </n>
         <button>保存</button>
-        <button @click="deleteApi">删除</button>
+        <button @click="onDelApi">删除</button>
     </n>
 </template>
 <script lang="ts" setup>
@@ -31,7 +31,7 @@ const pageController = usePageController();
 const apisStore = useApisStore();
 const selectedApiStore = useSelectedApiStore();
 
-function deleteApi() {
+function onDelApi() {
     const id = selectedApiStore.selectedApi?.id;
     if (!id) return;
     if (confirm('确定要删除这个接口吗？')) {
