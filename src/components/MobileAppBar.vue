@@ -33,9 +33,9 @@ function handleMouseDown(event: MouseEvent) {
 }
 
 const prop = defineProps<{
-    name?: string;
+    title?: string;
 }>();
 
-const title = prop.name;
+const title = prop.title;
 
 </script>

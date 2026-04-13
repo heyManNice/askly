@@ -1,5 +1,5 @@
 <template>
-    <MobileAppBar :name="aspc.selected?.name || '新建接口'" />
+    <MobileAppBar :title="aspc.selected?.name || '新建接口'" />
     <n v-if="aspc.selected" class="p-3 flex flex-col gap-3">
         <n class="text-sm text-gray-500 dark:text-zinc-400">接口 ID: {{ aspc.selected?.id ?? '新建接口' }}</n>
 

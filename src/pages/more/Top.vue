@@ -9,7 +9,7 @@
         <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
             <n v-for="route in moreRoutes" :key="route.id"
                 class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
-                @click="pageController.toSubPage()">
+                @click="mspc.toSubPage(route.label)">
                 <!-- 图标 -->
                 <component :is="route.icon" class="w-5 h-5" />
                 <!-- 标签 -->
@@ -31,17 +31,16 @@ import {
 } from 'vue-icons-plus/fi'
 
 import {
-    usePageController
-} from '@layouts/Mountain.controller';
-
-const pageController = usePageController();
-
-import {
     usePufferStore
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
 
+import {
+    useMoreSubPageController
+} from '@stores/more';
+
+const mspc = useMoreSubPageController();
 
 import {
     routes
