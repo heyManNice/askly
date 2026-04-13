@@ -40,6 +40,9 @@ import {
 const mspc = useMoreSubPageController();
 
 pufferStore.onResize((m) => {
+    if (m !== 'compact') {
+        mspc.isShowMorePage = false;
+    }
     if (selectedRoute.value < 2) {
         // 因为开头的两个必显示，就不处理了
         return;
@@ -47,10 +50,6 @@ pufferStore.onResize((m) => {
     // 如果当前选中的导航图标已经不显示，那么就显示more
     if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
         mspc.isShowMorePage = true;
-    } else {
-        if (m !== 'compact') {
-            mspc.isShowMorePage = false;
-        }
     }
 });
 
