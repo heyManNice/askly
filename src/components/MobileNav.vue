@@ -3,15 +3,15 @@
     <TransitionGroup name="slide" tag="div" class="mobile-nav-group" @before-leave="onBeforeLeave">
         <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
             class="flex flex-col items-center cursor-pointer w-15" :class="{
-                'text-blue-400': !isShowMorePage && i === selectedRoute
-            }" @click="selectedRoute = i, isShowMorePage = false">
+                'text-blue-400': !mspc.isShowMorePage && i === selectedRoute
+            }" @click="selectedRoute = i, mspc.isShowMorePage = false">
             <component :is="route.icon" />
             <n class="text-xs">{{ route.label }}</n>
         </n>
         <!-- 额外的导航项 -->
         <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
-            'text-blue-400': isShowMorePage
-        }" @click="isShowMorePage = true">
+            'text-blue-400': mspc.isShowMorePage
+        }" @click="mspc.isShowMorePage = true">
             <FiMenu />
             <n class=" text-xs">更多</n>
         </n>
@@ -31,19 +31,26 @@ import {
 import {
     usePufferStore
 } from '@stores/puffer';
-import { ref } from 'vue';
 
 const pufferStore = usePufferStore();
 
-// 是否显示more页面
-const isShowMorePage = ref(false);
+import {
+    useMoreSubPageController
+} from '@stores/more';
+const mspc = useMoreSubPageController();
 
-pufferStore.onResize(() => {
+pufferStore.onResize((m) => {
+    if (selectedRoute.value >= 2) {
+        // 因为开头的两个必显示，就不处理了
+        return;
+    }
     // 如果当前选中的导航图标已经不显示，那么就显示more
     if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
-        isShowMorePage.value = true;
+        mspc.isShowMorePage = true;
     } else {
-        isShowMorePage.value = false;
+        if (m !== 'compact') {
+            mspc.isShowMorePage = false;
+        }
     }
 });
 

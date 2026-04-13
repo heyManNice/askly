@@ -7,19 +7,12 @@ import {
     computed
 } from "vue";
 
-import {
-    usePageController
-} from '@layouts/Mountain.controller';
 
 import {
     routes
 } from '@routes/main';
 
-
-
 export const useMoreSubPageController = defineStore('moreSubPageController', () => {
-    const pageController = usePageController();
-
     const selected = ref<string | null>(null);
 
     const selectedComponent = computed(() => {
@@ -28,15 +21,17 @@ export const useMoreSubPageController = defineStore('moreSubPageController', () 
 
     function toSubPage(name: string) {
         selected.value = name;
-        pageController.toSubPage();
     }
 
     function toMainPage() {
         selected.value = null;
-        pageController.toTopPage();
     }
 
+    // 是否显示more页面
+    const isShowMorePage = ref(false);
+
     return {
+        isShowMorePage,
         selected,
         selectedComponent,
         toSubPage,

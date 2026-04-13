@@ -16,7 +16,8 @@
                 <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
                     class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 md:static absolute dark:bg-black">
                     <!-- 一级内容插槽 -->
-                    <slot name="top-page" />
+                    <slot v-if="!mspc.isShowMorePage" name="top-page" />
+                    <MoreTop v-if="mspc.isShowMorePage" />
                     <!-- 手机版导航区 -->
                     <transition name="slide-fg-b">
                         <n v-if="pufferStore.morph === 'compact'"
@@ -30,7 +31,7 @@
 
             <!-- 二级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-fg-r' : 'disable'">
-                <n v-if="pageController.currentPage !== 'top-page'"
+                <n v-if="!mspc.isShowMorePage && pageController.currentPage !== 'top-page'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white dark:bg-black dark:border-zinc-900 border-gray-200 absolute md:static w-full">
                     <!-- 二级内容插槽 -->
                     <slot name="sub-page" />
@@ -57,6 +58,13 @@ pufferStore.onResize((m) => {
         pageController.currentPage = 'both-page';
     }
 });
+
+import {
+    useMoreSubPageController
+} from '@stores/more';
+const mspc = useMoreSubPageController();
+
+import MoreTop from '@pages/more/Top.vue';
 </script>
 
 <style scoped>
