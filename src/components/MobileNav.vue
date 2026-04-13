@@ -40,7 +40,7 @@ import {
 const mspc = useMoreSubPageController();
 
 pufferStore.onResize((m) => {
-    if (selectedRoute.value >= 2) {
+    if (selectedRoute.value < 2) {
         // 因为开头的两个必显示，就不处理了
         return;
     }
