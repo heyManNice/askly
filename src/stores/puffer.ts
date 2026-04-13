@@ -44,9 +44,20 @@ export const usePufferStore = defineStore('puffer', () => {
         window.removeEventListener('resize', updateScreenWidth);
     });
 
+    // 手机导航栏图标显示的数量
+    const mobileNavIconCount = computed(() => {
+        if (screenWidth.value < 340)
+            return 2;
+        else if (screenWidth.value < 440)
+            return 3;
+        else
+            return 4;
+    });
+
     return {
         screenWidth,
         morph,
+        mobileNavIconCount,
         onResize,
     };
 });

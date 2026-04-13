@@ -1,7 +1,7 @@
 <template>
     <!-- 导航图标 -->
     <TransitionGroup name="slide" tag="div" class="mobile-nav-group" @before-leave="onBeforeLeave">
-        <n v-for="(route, i) in routes.slice(0, navIconCount)" :key="route.id"
+        <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
             class="flex flex-col items-center cursor-pointer w-15" :class="{
                 'text-blue-400': i === selectedRoute
             }" @click="selectedRoute = i">
@@ -30,34 +30,16 @@ import {
 } from '@routes/main';
 
 import {
-    computed
-} from 'vue';
-
-import {
     usePufferStore
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
 
-// 获取导航图标数量
-function getNavIconCount() {
-    if (pufferStore.screenWidth < 340)
-        return 2;
-    else if (pufferStore.screenWidth < 440)
-        return 3;
-    else
-        return 4;
-}
-
-// 导航图标数量
-const navIconCount = computed(() => {
-    const count = getNavIconCount();
-
+pufferStore.onResize(() => {
     // 如果当前选中的导航图标已经不显示，那么就显示more
-    if (selectedRoute.value >= count) {
+    if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
         selectedRoute.value = moreRouteIndex;
     }
-    return count;
 });
 
 // 离开动画的flip效果
