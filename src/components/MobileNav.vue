@@ -30,7 +30,6 @@ import {
 } from '@routes/main';
 
 import {
-    ref,
     computed
 } from 'vue';
 
@@ -51,13 +50,14 @@ function getNavIconCount() {
 }
 
 // 导航图标数量
-const navIconCount = computed(getNavIconCount);
+const navIconCount = computed(() => {
+    const count = getNavIconCount();
 
-pufferStore.onResize(() => {
     // 如果当前选中的导航图标已经不显示，那么就显示more
-    if (selectedRoute.value >= navIconCount.value) {
+    if (selectedRoute.value >= count) {
         selectedRoute.value = moreRouteIndex;
     }
+    return count;
 });
 
 // 离开动画的flip效果

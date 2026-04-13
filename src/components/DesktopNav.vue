@@ -24,10 +24,7 @@ import {
 } from 'vue-icons-plus/fi';
 
 import {
-    routes
-} from '@routes/main';
-
-import {
+    routes,
     selectedRoute
 } from '@routes/main';
 
