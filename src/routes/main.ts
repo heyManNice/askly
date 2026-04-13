@@ -33,17 +33,12 @@ import DatabaseSub from '@pages/database/Sub.vue';
 import ResourcesTop from '@pages/resources/Top.vue';
 import ResourcesSub from '@pages/resources/Sub.vue';
 
-// 更多
-import MoreTop from '@pages/more/Top.vue';
-import MoreSub from '@pages/more/Sub.vue';
-
 type Route = {
     id: string;
     label: string;
     icon: typeof FiMessageSquare;
     top: Component;
     sub: Component;
-    hiddenOnDesktop?: boolean;
 };
 
 export const routes: Route[] = [
@@ -81,18 +76,7 @@ export const routes: Route[] = [
         icon: FiShoppingBag,
         top: ResourcesTop,
         sub: ResourcesSub
-    },
-    {
-        id: 'more',
-        label: '更多',
-        icon: FiMenu,
-        top: MoreTop,
-        sub: MoreSub,
-        hiddenOnDesktop: true
     }
 ];
-
-export const moreRouteIndex = routes.findIndex(route => route.id === 'more');
-
 // 选中的路由
 export const selectedRoute = ref<number>(0);

@@ -52,20 +52,9 @@ import {
 } from '@layouts/Mountain.controller';
 const pageController = usePageController();
 
-import {
-    selectedRoute,
-    moreRouteIndex
-} from '@routes/main';
-
 pufferStore.onResize((m) => {
     if (m === 'expanded') {
         pageController.currentPage = 'both-page';
-    }
-
-    // 如果当前在more页且切换到桌面布局，重置到第一个页面
-    // more页仅在手机上显示，桌面布局没有more页
-    if (selectedRoute.value === moreRouteIndex && m !== 'compact') {
-        selectedRoute.value = 0;
     }
 });
 </script>

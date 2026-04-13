@@ -47,7 +47,7 @@ import {
 } from '@routes/main';
 
 const moreRoutes = computed(() => {
-    return routes.slice(pufferStore.mobileNavIconCount).filter((route) => !route.hiddenOnDesktop);
+    return routes.slice(pufferStore.mobileNavIconCount);
 });
 </script>
 

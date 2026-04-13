@@ -3,15 +3,15 @@
     <TransitionGroup name="slide" tag="div" class="mobile-nav-group" @before-leave="onBeforeLeave">
         <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
             class="flex flex-col items-center cursor-pointer w-15" :class="{
-                'text-blue-400': i === selectedRoute
-            }" @click="selectedRoute = i">
+                'text-blue-400': !isShowMorePage && i === selectedRoute
+            }" @click="selectedRoute = i, isShowMorePage = false">
             <component :is="route.icon" />
             <n class="text-xs">{{ route.label }}</n>
         </n>
         <!-- 额外的导航项 -->
         <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
-            'text-blue-400': moreRouteIndex === selectedRoute
-        }" @click="selectedRoute = moreRouteIndex">
+            'text-blue-400': isShowMorePage
+        }" @click="isShowMorePage = true">
             <FiMenu />
             <n class=" text-xs">更多</n>
         </n>
@@ -26,19 +26,24 @@ import {
 import {
     routes,
     selectedRoute,
-    moreRouteIndex
 } from '@routes/main';
 
 import {
     usePufferStore
 } from '@stores/puffer';
+import { ref } from 'vue';
 
 const pufferStore = usePufferStore();
+
+// 是否显示more页面
+const isShowMorePage = ref(false);
 
 pufferStore.onResize(() => {
     // 如果当前选中的导航图标已经不显示，那么就显示more
     if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
-        selectedRoute.value = moreRouteIndex;
+        isShowMorePage.value = true;
+    } else {
+        isShowMorePage.value = false;
     }
 });
 
