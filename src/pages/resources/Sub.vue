@@ -1,9 +1,7 @@
 <template>
-    <p @click="pageController.toTopPage()">资源：回到一级页面</p>
+    <MobileAppBar />
+    <p class="px-2">资源</p>
 </template>
 <script lang="ts" setup>
-import {
-    usePageController
-} from '@layouts/Mountain.controller';
-const pageController = usePageController();
+import MobileAppBar from '@components/MobileAppBar.vue';
 </script>
