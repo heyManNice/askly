@@ -6,8 +6,8 @@
             <img :src="avatar" alt="avatar" class="rounded w-15">
         </n>
         <!-- more的导航选项 -->
-        <template v-for="route in routes.slice(pufferStore.mobileNavIconCount)" :key="route.id">
-            <n v-if="!route.hiddenOnDesktop"
+        <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
+            <n v-for="route in moreRoutes" :key="route.id"
                 class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 cursor-pointer items-center"
                 @click="pageController.toSubPage()">
                 <!-- 图标 -->
@@ -16,11 +16,14 @@
                 <n class="mr-auto">{{ route.label }}</n>
                 <FiChevronRight class="w-4 h-4" />
             </n>
-        </template>
-
+        </TransitionGroup>
     </n>
 </template>
 <script lang="ts" setup>
+import {
+    computed
+} from 'vue';
+
 import avatar from '@images/avatar.jpg';
 
 import {
@@ -43,4 +46,34 @@ const pufferStore = usePufferStore();
 import {
     routes
 } from '@routes/main';
+
+const moreRoutes = computed(() => {
+    return routes.slice(pufferStore.mobileNavIconCount).filter((route) => !route.hiddenOnDesktop);
+});
 </script>
+
+<style scoped>
+.more-nav-list {
+    position: relative;
+    display: grid;
+}
+
+.more-nav-enter-active,
+.more-nav-leave-active,
+.more-nav-move {
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.more-nav-enter-from,
+.more-nav-leave-to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+}
+
+.more-nav-leave-active {
+    position: absolute;
+    width: 100%;
+}
+</style>
