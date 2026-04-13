@@ -1,5 +1,5 @@
 <template>
-    <p @click="page.toTopPage()">更多回到一级页面</p>
+    <p @click="page.toTopPage()">更多：回到一级页面</p>
 </template>
 <script lang="ts" setup>
 import type {

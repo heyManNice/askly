@@ -1,12 +1,13 @@
 <template>
     <n class="flex-1">
-        <p @click="page.toSubPage()">角色：去二级页面</p>
+        <p @click="page.toSubPage()">接口：去二级页面</p>
     </n>
 </template>
 <script lang="ts" setup>
 import type {
     PageSwitcher
 } from '@layouts/Mountain.types';
+
 const props = defineProps<{
     page: PageSwitcher;
 }>();
