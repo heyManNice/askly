@@ -14,7 +14,7 @@
             <!-- 一级内容区域 -->
             <transition :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
                 <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
-                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 px-2 md:static absolute dark:bg-black">
+                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 md:static absolute dark:bg-black">
                     <!-- 一级内容插槽 -->
                     <slot name="top-page" />
                     <!-- 手机版导航区 -->
