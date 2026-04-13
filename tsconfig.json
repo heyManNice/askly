@@ -39,6 +39,9 @@
             ],
             "@stores/*": [
                 "src/stores/*"
+            ],
+            "@utils/*": [
+                "src/utils/*"
             ]
         },
         "resolveJsonModule": true,

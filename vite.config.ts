@@ -14,7 +14,8 @@ export default defineConfig({
             '@pages': path.resolve(__dirname, 'src/pages'),
             '@routes': path.resolve(__dirname, 'src/routes'),
             '@services': path.resolve(__dirname, 'src/services'),
-            '@stores': path.resolve(__dirname, 'src/stores')
+            '@stores': path.resolve(__dirname, 'src/stores'),
+            '@utils': path.resolve(__dirname, 'src/utils')
         }
     },
     plugins: [

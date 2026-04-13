@@ -2,38 +2,6 @@
 @import "tailwindcss";
 
 
-/* debug时显示元素边框和对角线 */
-.debug * {
-    outline: 1px solid blue;
-    background-image: linear-gradient(to bottom right,
-            transparent calc(50%),
-            red calc(50% - 1px),
-            red calc(50% + 1px),
-            transparent calc(50%));
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-}
-
-.debug *:hover {
-    background-color: rgba(0, 0, 255, 0.1) !important;
-}
-
-.debug [data-debug-hover]::after {
-    content: attr(class);
-    position: fixed;
-    top: 0;
-    right: 0;
-    font-size: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    padding: 2px;
-}
-
-.debug [data-debug-hover]:not([class])::after {
-    content: "(empty)";
-}
-
-
 /* 根元素占满窗口 */
 html,
 body {
