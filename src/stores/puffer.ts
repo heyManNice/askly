@@ -3,7 +3,8 @@ import {
 } from "pinia";
 import {
     ref,
-    computed
+    computed,
+    onScopeDispose
 } from "vue";
 
 const BP = {
@@ -37,7 +38,11 @@ export const usePufferStore = defineStore('puffer', () => {
         screenWidth.value = window.innerWidth;
         onResizeQueue.forEach(callback => callback(morph.value));
     }
+
     window.addEventListener('resize', updateScreenWidth);
+    onScopeDispose(() => {
+        window.removeEventListener('resize', updateScreenWidth);
+    });
 
     return {
         screenWidth,
