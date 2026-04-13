@@ -50,6 +50,7 @@ export const useApisStore = defineStore('apis', () => {
             name: api.name,
             url: api.url,
             key: api.key,
+            model: api.model,
             updatedAt: new Date(),
         }).then(() => {
             updateApiList();

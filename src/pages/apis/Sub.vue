@@ -3,30 +3,11 @@
     <n v-if="aspc.selected" class="p-3 flex flex-col gap-3">
         <n class="text-sm text-gray-500 dark:text-zinc-400">接口 ID: {{ aspc.selected?.id ?? '新建接口' }}</n>
 
-        <n class="grid gap-1">
-            <n class="text-sm text-gray-500 dark:text-zinc-400">名称</n>
-            <input v-model="name" class="h-9 px-2 rounded bg-gray-100 dark:bg-zinc-800 dark:border dark:border-zinc-900"
-                placeholder="qwen-plus" />
-        </n>
-
-        <n class="grid gap-1">
-            <n class="text-sm text-gray-500 dark:text-zinc-400">Base URL</n>
-            <input v-model="url" class="h-9 px-2 rounded bg-gray-100 dark:bg-zinc-800 dark:border dark:border-zinc-900"
-                placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
-        </n>
-
-        <n class="grid gap-1">
-            <n class="text-sm text-gray-500 dark:text-zinc-400">API Key</n>
-            <input v-model="key" class="h-9 px-2 rounded bg-gray-100 dark:bg-zinc-800 dark:border dark:border-zinc-900"
-                placeholder="sk-..." />
-        </n>
-
-        <n class="grid gap-1">
-            <n class="text-sm text-gray-500 dark:text-zinc-400">Model</n>
-            <input v-model="model"
-                class="h-9 px-2 rounded bg-gray-100 dark:bg-zinc-800 dark:border dark:border-zinc-900"
-                placeholder="qwen-plus" />
-        </n>
+        <TextInput v-model="name" label="名称" placeholder="qwen-plus" default-value="qwen-plus" />
+        <TextInput v-model="url" label="Base URL" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            default-value="https://dashscope.aliyuncs.com/compatible-mode/v1" />
+        <TextInput v-model="key" label="API Key" placeholder="sk-..." type="password" />
+        <TextInput v-model="model" label="Model" placeholder="qwen-plus" default-value="qwen-plus" />
 
         <n class="flex gap-2 pt-1">
             <button class="px-3 h-9 rounded bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-900 cursor-pointer"
@@ -51,6 +32,7 @@ import {
     watch
 } from 'vue';
 
+import TextInput from '@components/TextInput.vue';
 import MobileAppBar from '@components/MobileAppBar.vue';
 import {
     useApiSubPageController,
@@ -73,24 +55,26 @@ watch(
             name.value = '';
             url.value = '';
             key.value = '';
+            model.value = '';
             return;
         }
 
         name.value = selected.name ?? '';
         url.value = selected.url ?? '';
         key.value = selected.key ?? '';
+        model.value = selected.model ?? '';
     },
     { immediate: true },
 );
 
 function onSaveApi() {
-    const n = name.value.trim();
-    const u = url.value.trim();
-    const k = key.value.trim();
-    const m = model.value.trim();
+    const n = name.value;
+    const u = url.value;
+    const k = key.value;
+    const m = model.value;
 
-    if (!n || !u) {
-        alert('名称和地址不能为空');
+    if (k === '') {
+        alert('API Key 不能为空');
         return;
     }
 
