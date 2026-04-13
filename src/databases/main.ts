@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
 
 class Database extends Dexie {
-    // 接口数据库
+    // 接口表
     apis!: Table<{
         // 自增id
         id?: number;
@@ -15,7 +15,7 @@ class Database extends Dexie {
         updatedAt: Date;
     }, number>;
 
-    // 角色数据库
+    // 角色表
     roles!: Table<{
         // 自增id
         id?: number;
@@ -39,11 +39,42 @@ class Database extends Dexie {
         updatedAt: Date;
     }, number>;
 
+    // 聊天信息热表
+    // 储存最近几天的信息
+    hotMessages!: Table<{
+        // 唯一id
+        uuid: string;
+        // 角色id
+        roleId: number;
+        // 消息内容
+        content: string;
+        // 消息类型，user或assistant
+        type: 'user' | 'assistant' | 'system';
+        // 创建时间
+        createdAt: Date;
+    }>;
+
+    // 聊天信息冷表
+    coldMessages!: Table<{
+        // 唯一id
+        uuid: string;
+        // 角色id
+        roleId: number;
+        // 消息内容
+        content: string;
+        // 消息类型，user或assistant
+        type: 'user' | 'assistant' | 'system';
+        // 创建时间
+        createdAt: Date;
+    }>;
+
     constructor() {
         super('askly-database');
         this.version(1).stores({
             apis: '++id',
             roles: '++id',
+            hotMessages: 'uuid,roleId,createdAt',
+            coldMessages: 'uuid,roleId,createdAt'
         });
     }
 }
