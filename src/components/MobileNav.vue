@@ -3,15 +3,15 @@
     <TransitionGroup name="slide" tag="div" class="mobile-nav-group" @before-leave="onBeforeLeave">
         <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
             class="flex flex-col items-center cursor-pointer w-15" :class="{
-                'text-blue-400': !isMorePageActive && i === selectedRoute
-            }" @click="onRouteClick(i)">
+                'text-blue-400': !mspc.isShowMorePage && i === selectedRoute
+            }" @click="selectedRoute = i, mspc.isShowMorePage = false">
             <component :is="route.icon" />
             <n class="text-xs">{{ route.label }}</n>
         </n>
         <!-- 额外的导航项 -->
         <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
-            'text-blue-400': isMorePageActive
-        }" @click="onMoreClick">
+            'text-blue-400': mspc.isShowMorePage
+        }" @click="mspc.isShowMorePage = true">
             <FiMenu />
             <n class=" text-xs">更多</n>
         </n>
@@ -29,14 +29,15 @@ import {
 } from '@routes/main';
 
 import {
-    computed
-} from 'vue';
-
-import {
     usePufferStore
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
+
+import {
+    useMoreSubPageController
+} from '@stores/more';
+const mspc = useMoreSubPageController();
 
 import {
     usePageController
@@ -44,39 +45,21 @@ import {
 
 const pageController = usePageController();
 
-import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
-
-const isMorePageActive = computed(() => {
-    return pageController.getTopPageCached()?.meta?.kind === 'more-nav';
-});
-
-function onRouteClick(routeIndex: number) {
-    pageController.switchRoute(routeIndex);
-}
-
-function onMoreClick() {
-    if (isMorePageActive.value) {
-        return;
-    }
-    pageController.pushPage({
-        key: 'mobile-more-nav',
-        component: MobileMoreNavPage,
-        meta: {
-            kind: 'more-nav',
-        },
-    });
-}
-
 pufferStore.onResize((m) => {
     if (m !== 'compact') {
+        mspc.isShowMorePage = false;
         return;
     }
-    if (selectedRoute.value < pufferStore.mobileNavIconCount) {
+    if (selectedRoute.value < 2) {
+        // 因为开头的两个必显示，就不处理了
         return;
     }
     // 如果当前选中的导航图标已经不显示，那么就显示more
     if (selectedRoute.value >= pufferStore.mobileNavIconCount) {
-        onMoreClick();
+        mspc.isShowMorePage = true;
+        // 如果要显示额外的导航页面，就先展示一级页面
+        pageController.toTopPage();
+
     }
 });
 

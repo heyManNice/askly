@@ -11,17 +11,13 @@
         </transition>
         <!-- 导航页面区域 -->
         <n class="flex-1 flex flex-row relative">
-            <!-- 背景页面区域（桌面端显示栈顶第二页，移动端显示基础页） -->
-            <transition :name="backgroundTransitionName" @after-enter="onPageTransitionDone"
-                @after-leave="onPageTransitionDone">
-                <n v-if="isBackgroundVisible && pageController.backgroundPageCached"
-                    class="h-full sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 dark:bg-black"
-                    :class="backgroundContainerClass">
-                    <!-- 背景页面组件 -->
-                    <component :is="pageController.backgroundPageCached.component"
-                        :key="`bg-${pageController.backgroundPageCached.key}`"
-                        v-bind="pageController.backgroundPageCached.props" />
-
+            <!-- 一级内容区域 -->
+            <transition :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
+                <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
+                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 md:static absolute dark:bg-black">
+                    <!-- 一级内容插槽 -->
+                    <slot v-if="!mspc.isShowMorePage" name="top-page" />
+                    <MobileMoreNavPage v-if="mspc.isShowMorePage" />
                     <!-- 手机版导航区 -->
                     <transition name="slide-fg-b">
                         <n v-if="pufferStore.morph === 'compact'"
@@ -33,15 +29,12 @@
                 </n>
             </transition>
 
-            <!-- 前景页面区域（显示栈顶页） -->
-            <transition :name="foregroundTransitionName" @after-enter="onPageTransitionDone"
-                @after-leave="onPageTransitionDone">
-                <n v-if="pageController.foregroundPageCached"
+            <!-- 二级内容区域 -->
+            <transition :name="pufferStore.morph !== 'expanded' ? 'slide-fg-r' : 'disable'">
+                <n v-if="!mspc.isShowMorePage && pageController.currentPage !== 'top-page'"
                     class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white dark:bg-black dark:border-zinc-900 border-gray-200 absolute md:static w-full">
-                    <!-- 前景页面组件 -->
-                    <component :is="pageController.foregroundPageCached.component"
-                        :key="`fg-${pageController.foregroundPageCached.key}`"
-                        v-bind="pageController.foregroundPageCached.props" />
+                    <!-- 二级内容插槽 -->
+                    <slot name="sub-page" />
                 </n>
             </transition>
         </n>
@@ -49,12 +42,6 @@
 </template>
 
 <script lang="ts" setup>
-import {
-    computed,
-    ref,
-    watch
-} from 'vue';
-
 import {
     usePufferStore
 } from '@stores/puffer';
@@ -66,68 +53,18 @@ import {
 } from '@layouts/Mountain.controller';
 const pageController = usePageController();
 
-const isMorphSwitching = ref(false);
-
 pufferStore.onResize((m) => {
     if (m === 'expanded') {
-        // 栅格切换到桌面端时，不触发页面切换动画，改用 flex-scale-x
-        isMorphSwitching.value = true;
-    }
-    if (m !== 'expanded') {
-        isMorphSwitching.value = true;
+        pageController.currentPage = 'both-page';
     }
 });
 
-watch(() => pufferStore.morph, (next, prev) => {
-    if (prev && next !== prev) {
-        isMorphSwitching.value = true;
-    }
-});
+import {
+    useMoreSubPageController
+} from '@stores/more';
+const mspc = useMoreSubPageController();
 
-const backgroundContainerClass = computed(() => {
-    const hasSecond = pageController.hasSecondPage;
-    if (pufferStore.morph !== 'expanded') {
-        return pageController.isMobileForegroundMode ? 'w-full absolute left-0 top-0' : 'w-full';
-    }
-    return hasSecond ? 'w-full md:w-60 md:static absolute left-0 top-0 shrink-0' : 'w-full md:static absolute left-0 top-0';
-});
-
-const isBackgroundVisible = computed(() => {
-    if (pufferStore.morph === 'expanded') {
-        return true;
-    }
-    return !pageController.isMobileForegroundMode;
-});
-
-const isPageStackSwitching = computed(() => {
-    return pageController.transitionAction === 'push' || pageController.transitionAction === 'pop';
-});
-
-const backgroundTransitionName = computed(() => {
-    if (isMorphSwitching.value && pufferStore.morph === 'expanded') {
-        return 'flex-scale-x';
-    }
-    if (isPageStackSwitching.value) {
-        return 'slide-bg-l';
-    }
-    return 'disable';
-});
-
-const foregroundTransitionName = computed(() => {
-    if (isPageStackSwitching.value) {
-        return 'slide-fg-r';
-    }
-    return 'disable';
-});
-
-function onPageTransitionDone() {
-    if (pageController.transitionAction !== 'none') {
-        pageController.clearTransitionAction();
-    }
-    if (isMorphSwitching.value) {
-        isMorphSwitching.value = false;
-    }
-}
+import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
 </script>
 
 <style scoped>
@@ -186,16 +123,5 @@ function onPageTransitionDone() {
 .slide-fg-b-leave-to {
     transform: translateY(100%);
     opacity: 0;
-}
-
-/* 禁用过渡 */
-.disable-enter-active,
-.disable-leave-active {
-    transition: none;
-}
-
-.disable-enter-from,
-.disable-leave-to {
-    opacity: 1;
 }
 </style>

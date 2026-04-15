@@ -9,10 +9,24 @@
         <template #mobile-nav>
             <MobileNav />
         </template>
+
+        <!-- 一级内容区域 -->
+        <template #top-page>
+            <component :is="routes[selectedRoute].top" />
+        </template>
+
+        <!-- 二级内容区域 -->
+        <template #sub-page>
+            <component :is="routes[selectedRoute].sub" />
+        </template>
     </Mountain>
 </template>
 <script lang="ts" setup>
 import Mountain from '@layouts/Mountain.vue';
 import DesktopNav from '@components/DesktopNav.vue';
 import MobileNav from '@components/MobileNav.vue';
+import {
+    routes,
+    selectedRoute
+} from '@routes/main';
 </script>
