@@ -92,17 +92,17 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        pageController.toSubPage();
+        pageController.openCurrentRouteSubPage();
     }
 
     function toEditApiPage(api: DBKey<typeof apis>) {
         selected.value = api;
-        pageController.toSubPage();
+        pageController.openCurrentRouteSubPage();
     }
 
     function toApiListPage() {
         selected.value = null;
-        pageController.toTopPage();
+        pageController.popPage();
     }
     return {
         selected,

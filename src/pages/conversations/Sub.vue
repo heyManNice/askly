@@ -2,7 +2,7 @@
     <!-- 顶部标题栏 -->
     <n @mousedown="handleMouseDown" class="flex flex-row px-2 pb-2 border-b dark:border-zinc-900 border-gray-200">
         <!-- 左边返回图标 -->
-        <FiChevronLeft @mousedown.stop @click="pageController.toTopPage()"
+        <FiChevronLeft @mousedown.stop @click="pageController.popPage()"
             class="w-5 cursor-pointer hover:bg-gray-100 dark:border-zinc-900 dark:hover:bg-zinc-800 rounded block md:hidden max-sm:mr-5" />
         <!-- 标题内容 -->
         <n class="mr-auto ml-auto md:ml-0">猫小咪</n>

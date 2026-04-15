@@ -9,7 +9,7 @@
         <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
             <n v-for="route in moreRoutes" :key="route.id"
                 class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
-                @click="mspc.toSubPage(route.label)">
+                @click="pageController.switchRoute(route.index)">
                 <!-- 图标 -->
                 <component :is="route.icon" class="w-5 h-5" />
                 <!-- 标签 -->
@@ -37,17 +37,22 @@ import {
 const pufferStore = usePufferStore();
 
 import {
-    useMoreSubPageController
-} from '@stores/more';
+    usePageController
+} from '@layouts/Mountain.controller';
 
-const mspc = useMoreSubPageController();
+const pageController = usePageController();
 
 import {
     routes
 } from '@routes/main';
 
 const moreRoutes = computed(() => {
-    return routes.slice(pufferStore.mobileNavIconCount);
+    return routes
+        .map((route, index) => ({
+            ...route,
+            index,
+        }))
+        .slice(pufferStore.mobileNavIconCount);
 });
 </script>
 
