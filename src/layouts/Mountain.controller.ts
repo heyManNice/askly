@@ -31,7 +31,7 @@ export type PageStackItem = {
     };
 };
 
-export function buildRouteTopPage(routeIndex: number): PageStackItem {
+function buildRouteTopPage(routeIndex: number): PageStackItem {
     const route = routes[routeIndex];
     return {
         key: `${route.id}-top`,
@@ -43,7 +43,7 @@ export function buildRouteTopPage(routeIndex: number): PageStackItem {
     };
 }
 
-export function buildRouteSubPage(routeIndex: number): PageStackItem {
+function buildRouteSubPage(routeIndex: number): PageStackItem {
     const route = routes[routeIndex];
     return {
         key: `${route.id}-sub`,
@@ -158,6 +158,20 @@ export const usePageController = defineStore('pageController', () => {
         transitionAction.value = 'none';
     }
 
+    // 打开当前路由的二级页面（兼容现有 toSubPage 调用）
+    function openCurrentRouteSubPage() {
+        pushPage(buildRouteSubPage(selectedRoute.value));
+    }
+
+    // 兼容旧接口：toTopPage/toSubPage
+    function toTopPage() {
+        popPage();
+    }
+
+    function toSubPage() {
+        openCurrentRouteSubPage();
+    }
+
     return {
         pageStack,
         stackDepth,
@@ -174,7 +188,8 @@ export const usePageController = defineStore('pageController', () => {
         getSecondPageCached,
         clearTransitionAction,
         switchRoute,
-        buildRouteTopPage,
-        buildRouteSubPage
+        openCurrentRouteSubPage,
+        toTopPage,
+        toSubPage
     }
 });

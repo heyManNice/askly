@@ -75,13 +75,8 @@ export const useApisStore = defineStore('apis', () => {
 });
 
 import {
-    buildRouteSubPage,
     usePageController
 } from '@layouts/Mountain.controller';
-
-import {
-    selectedRoute
-} from '@routes/main';
 
 // api二级页面控制器
 export const useApiSubPageController = defineStore('apiSubPageController', () => {
@@ -97,12 +92,12 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        pageController.pushPage(buildRouteSubPage(selectedRoute.value));
+        pageController.openCurrentRouteSubPage();
     }
 
     function toEditApiPage(api: DBKey<typeof apis>) {
         selected.value = api;
-        pageController.pushPage(buildRouteSubPage(selectedRoute.value));
+        pageController.openCurrentRouteSubPage();
     }
 
     function toApiListPage() {
