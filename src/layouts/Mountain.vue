@@ -17,7 +17,7 @@
                     class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 md:static absolute dark:bg-black">
                     <!-- 一级内容插槽 -->
                     <slot v-if="!mspc.isShowMorePage" name="top-page" />
-                    <MoreTop v-if="mspc.isShowMorePage" />
+                    <MobileMoreNavPage v-if="mspc.isShowMorePage" />
                     <!-- 手机版导航区 -->
                     <transition name="slide-fg-b">
                         <n v-if="pufferStore.morph === 'compact'"
@@ -64,7 +64,7 @@ import {
 } from '@stores/more';
 const mspc = useMoreSubPageController();
 
-import MoreTop from '@pages/more/Top.vue';
+import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
 </script>
 
 <style scoped>
