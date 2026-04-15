@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "eziapp-builder --mode debug",
-    "build": "eziapp-builder --mode release",
+    "build": "vue-tsc && eziapp-builder --mode release",
     "build:windows": "eziapp-builder --mode release --platform windows",
     "build:linux": "eziapp-builder --mode release --platform linux",
     "build:macos": "eziapp-builder --mode release --platform macos"
@@ -22,7 +22,8 @@
     "pinia": "^3.0.4",
     "tailwindcss": "^4.2.2",
     "vue": "latest",
-    "vue-icons-plus": "^0.1.9"
+    "vue-icons-plus": "^0.1.9",
+    "vue-tsc": "^3.2.6"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
