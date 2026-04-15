@@ -11,31 +11,17 @@
         </transition>
         <!-- 导航页面区域 -->
         <n class="flex-1 flex flex-row relative">
-            <!-- 一级内容区域 -->
-            <transition :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
-                <n v-if="pageController.currentPage === 'top-page' || pufferStore.morph === 'expanded'"
-                    class="w-full h-full md:w-60 sm:border-l border-gray-200 dark:border-zinc-900 flex flex-col gap-2 md:static absolute dark:bg-black">
-                    <!-- 一级内容插槽 -->
-                    <slot v-if="!mspc.isShowMorePage" name="top-page" />
-                    <MobileMoreNavPage v-if="mspc.isShowMorePage" />
-                    <!-- 手机版导航区 -->
-                    <transition name="slide-fg-b">
-                        <n v-if="pufferStore.morph === 'compact'"
-                            class="h-14 flex z-40 bg-white dark:bg-black flex-row gap-2 p-2 border-t dark:border-zinc-900 border-gray-200 justify-between px-5 pt-2 pb-1">
-                            <!-- 手机导航插槽 -->
-                            <slot name="mobile-nav" />
-                        </n>
-                    </transition>
-                </n>
+            <!-- 电脑布局显示栈第二页面 -->
+            <!-- 仅在电脑并且有第二页面时显示 -->
+            <transition v-if="pageController.stack.length > 1"
+                :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
+                <component :is="pageController.stack[pageController.stack.length - 2]" />
             </transition>
 
-            <!-- 二级内容区域 -->
-            <transition :name="pufferStore.morph !== 'expanded' ? 'slide-fg-r' : 'disable'">
-                <n v-if="!mspc.isShowMorePage && pageController.currentPage !== 'top-page'"
-                    class="flex-1 flex flex-col h-screen md:h-full z-50 border-l bg-white dark:bg-black dark:border-zinc-900 border-gray-200 absolute md:static w-full">
-                    <!-- 二级内容插槽 -->
-                    <slot name="sub-page" />
-                </n>
+            <!-- 手机和电脑显示栈顶页面 -->
+            <!-- 显示栈顶新旧切换动画 -->
+            <transition v-if="pageController.stack.length > 0">
+                <component :is="pageController.stack[pageController.stack.length - 1]" />
             </transition>
         </n>
     </n>
@@ -50,21 +36,21 @@ const pufferStore = usePufferStore();
 
 import {
     usePageController
-} from '@layouts/Mountain.controller';
+} from '@pages/controller';
 const pageController = usePageController();
 
-pufferStore.onResize((m) => {
-    if (m === 'expanded') {
-        pageController.currentPage = 'both-page';
-    }
+import Test1 from '@pages/conversations/Top.vue';
+import Test2 from '@pages/conversations/Sub.vue';
+
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    pageController.push(Test1);
+    setTimeout(() => {
+        pageController.push(Test2);
+    }, 1000);
 });
 
-import {
-    useMoreSubPageController
-} from '@stores/more';
-const mspc = useMoreSubPageController();
-
-import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
 </script>
 
 <style scoped>
