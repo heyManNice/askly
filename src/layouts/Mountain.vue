@@ -19,10 +19,10 @@
                 </n>
             </transition>
 
-            <n class="flex flex-col flex-1 relative">
+            <n class="flex flex-col flex-1 relative ">
                 <!-- 手机和电脑显示栈顶页面 -->
                 <!-- 显示栈顶新旧切换动画 -->
-                <transition name="slide-fg-r">
+                <transition :name="`page-${pageController.animationType}-slide`">
                     <component v-if="pageController.stack.length > 0"
                         :is="pageController.stack[pageController.stack.length - 1]" />
                 </transition>
@@ -44,23 +44,18 @@ import {
 const pageController = usePageController();
 
 import Test1 from '@pages/conversations/Top.vue';
-import Test2 from '@pages/conversations/Sub.vue';
 
 import { onMounted } from 'vue';
 
 onMounted(() => {
-    pageController.push(Test1);
-    setTimeout(() => {
-        pageController.push(Test2);
-    }, 1000);
+    pageController.push(Test1)
 });
 
 </script>
 
 <style scoped>
-/* 前景页面右侧滑入滑出动画 */
-.slide-fg-r-enter-active,
-.slide-fg-r-leave-active {
+.page-pop-slide-leave-active,
+.page-push-slide-enter-active {
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
         box-shadow-color 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     box-shadow: -1rem 0 2rem rgba(0, 0, 0, 0.05);
@@ -68,29 +63,33 @@ onMounted(() => {
     width: 100%;
 }
 
-.slide-fg-r-enter-from {
-    transform: translateX(100%);
-}
-
-.slide-fg-r-leave-to {
-    transform: translateX(100%);
-}
-
-/* 背景页面左侧滑入滑出动画 */
-.slide-bg-l-enter-active {
+.page-push-slide-leave-active,
+.page-pop-slide-enter-active {
     transition: transform 0.5s ease;
+    position: absolute;
+    width: 100%;
 }
 
-.slide-bg-l-leave-active {
-    transition: transform 0.5s ease;
+/* 页面管理器push的时候的动画 */
+/* 新增的从右侧切入，z顶层，原来的从左侧消失 */
+.page-push-slide-enter-from {
+    transform: translateX(100%);
+    z-index: 10;
 }
 
-.slide-bg-l-enter-from {
+.page-push-slide-leave-to {
     transform: translateX(-20%);
 }
 
-.slide-bg-l-leave-to {
+/* 页面管理器pop的时候的动画 */
+/* 旧的从原位消失，新增的从左侧切入 */
+.page-pop-slide-enter-from {
     transform: translateX(-20%);
+}
+
+.page-pop-slide-leave-to {
+    transform: translateX(100%);
+    z-index: 10;
 }
 
 /* flex x轴缩小动画 */

@@ -1,5 +1,5 @@
 <template>
-    <n class="flex flex-col gap-2">
+    <n class="flex flex-col h-full gap-2 bg-white dark:bg-black">
         <!-- 搜索区域 -->
         <n class="h-8 flex shrink-0 px-2">
             <!-- 搜索输入框 -->
