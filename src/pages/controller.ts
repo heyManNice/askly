@@ -13,7 +13,7 @@ export const usePageController = defineStore('pageController', () => {
     const stack = ref<Component[]>([]);
 
     // 记录动画类型
-    const animationType = ref<'pop' | 'push'>('push');
+    const animationType = ref<'pop' | 'push' | 'none'>('push');
 
     function push(conmponent: Component) {
         // 如果栈顶和当前页面相同，就不压入新页面了
@@ -34,11 +34,17 @@ export const usePageController = defineStore('pageController', () => {
         stack.value = [];
     }
 
+    function replace(component: Component) {
+        animationType.value = 'none';
+        stack.value = [markRaw(component)];
+    }
+
     return {
         stack,
         push,
         pop,
         clear,
+        replace,
         animationType
     };
 });

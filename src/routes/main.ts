@@ -35,8 +35,7 @@ export const routes: Route[] = [
         icon: FiMessageSquare,
         onClick: () => {
             const pageController = usePageController();
-            pageController.clear();
-            pageController.push(ConversationsList);
+            pageController.replace(ConversationsList);
         }
     },
     {
@@ -45,8 +44,7 @@ export const routes: Route[] = [
         icon: FiUsers,
         onClick: () => {
             const pageController = usePageController();
-            pageController.clear();
-            pageController.push(RolesList);
+            pageController.replace(RolesList);
         }
     },
     {
@@ -55,8 +53,7 @@ export const routes: Route[] = [
         icon: FiServer,
         onClick: () => {
             const pageController = usePageController();
-            pageController.clear();
-            pageController.push(ApisList);
+            pageController.replace(ApisList);
         }
     },
     {
@@ -65,8 +62,7 @@ export const routes: Route[] = [
         icon: FiDatabase,
         onClick: () => {
             const pageController = usePageController();
-            pageController.clear();
-            pageController.push(DatabaseList);
+            pageController.replace(DatabaseList);
         }
     },
     {
@@ -75,8 +71,7 @@ export const routes: Route[] = [
         icon: FiShoppingBag,
         onClick: () => {
             const pageController = usePageController();
-            pageController.clear();
-            pageController.push(ResourcesList);
+            pageController.replace(ResourcesList);
         }
     }
 ];
