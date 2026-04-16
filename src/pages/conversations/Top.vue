@@ -48,7 +48,26 @@ import MobileNav from '@components/MobileNav.vue';
 import {
     usePageController
 } from '@pages/controller';
+
 const pageController = usePageController();
+
+import {
+    usePufferStore
+} from '@stores/puffer';
+
+const pufferStore = usePufferStore();
+
+// 如果切换到电脑模式并且页面栈只有一个页面，就压列表第一页
+function pushFirstSubPageIfNeed() {
+    if (pufferStore.morph === 'expanded' && pageController.stack.length === 1) {
+        pageController.push(Sub);
+    }
+}
+pushFirstSubPageIfNeed();
+
+pufferStore.onResize(() => {
+    pushFirstSubPageIfNeed();
+});
 
 const conversations = [
     {
