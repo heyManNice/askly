@@ -1,21 +1,25 @@
 <template>
-    <!-- 导航图标 -->
-    <TransitionGroup name="slide" tag="div" class="mobile-nav-group" @before-leave="onBeforeLeave">
-        <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
-            class="flex flex-col items-center cursor-pointer w-15" :class="{
-                'text-blue-400': !mspc.isShowMorePage && i === selectedRoute
-            }" @click="selectedRoute = i, mspc.isShowMorePage = false">
-            <component :is="route.icon" />
-            <n class="text-xs">{{ route.label }}</n>
-        </n>
-        <!-- 额外的导航项 -->
-        <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
-            'text-blue-400': mspc.isShowMorePage
-        }" @click="mspc.isShowMorePage = true">
-            <FiMenu />
-            <n class=" text-xs">更多</n>
-        </n>
-    </TransitionGroup>
+    <transition class="px-2" name="slide-fg-b">
+        <!-- 导航图标 -->
+        <TransitionGroup v-if="pufferStore.morph === 'compact'" name="slide" tag="div" class="mobile-nav-group"
+            @before-leave="onBeforeLeave">
+            <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
+                class="flex flex-col items-center cursor-pointer w-15" :class="{
+                    'text-blue-400': !mspc.isShowMorePage && i === selectedRoute
+                }" @click="selectedRoute = i, mspc.isShowMorePage = false">
+                <component :is="route.icon" />
+                <n class="text-xs">{{ route.label }}</n>
+            </n>
+            <!-- 额外的导航项 -->
+            <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
+                'text-blue-400': mspc.isShowMorePage
+            }" @click="mspc.isShowMorePage = true">
+                <FiMenu />
+                <n class=" text-xs">更多</n>
+            </n>
+        </TransitionGroup>
+    </transition>
+
 </template>
 
 <script lang="ts" setup>
@@ -107,5 +111,17 @@ function onBeforeLeave(el: Element) {
     width: 100%;
     display: flex;
     justify-content: space-between;
+}
+
+/* 向下滑动动画 */
+.slide-fg-b-enter-active,
+.slide-fg-b-leave-active {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.slide-fg-b-enter-from,
+.slide-fg-b-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
 }
 </style>

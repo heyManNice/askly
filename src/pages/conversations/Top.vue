@@ -33,6 +33,7 @@
                 </n>
             </n>
         </n>
+        <mobile-nav />
     </n>
 </template>
 
@@ -42,6 +43,7 @@ import doubao from '@images/doubao.jpg';
 import gpt from '@images/gpt.jpg';
 
 import Sub from '@pages/conversations/Sub.vue';
+import MobileNav from '@components/MobileNav.vue';
 
 import {
     usePageController
@@ -71,6 +73,5 @@ const conversations = [
         updatedAt: '16:00'
     }
 ];
-
 
 </script>

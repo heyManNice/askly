@@ -9,25 +9,27 @@
                 <slot name="desktop-nav" />
             </n>
         </transition>
-        <!-- 导航页面区域 -->
-        <n class="flex-1 flex flex-row">
-            <!-- 电脑布局左侧显示栈底页面 -->
-            <transition name="flex-scale-x">
-                <n class="flex flex-col w-80 border-l dark:border-zinc-900 border-gray-200"
-                    v-if="pufferStore.morph === 'expanded'">
-                    <component :is="pageController.stack[0]" />
-                </n>
-            </transition>
-
-            <n class="flex flex-col flex-1 relative border-l dark:border-zinc-900 border-gray-200">
-                <!-- 手机和电脑显示栈顶页面 -->
-                <!-- 显示栈顶新旧切换动画 -->
-                <transition
-                    :name="pufferStore.morph === 'expanded' ? 'disable' : `page-${pageController.animationType}-slide`">
-                    <component
-                        v-if="(pageController.stack.length > 0 && pufferStore.morph !== 'expanded') || pageController.stack.length > 1"
-                        :is="pageController.stack[pageController.stack.length - 1]" />
+        <n class="flex flex-col flex-1">
+            <!-- 导航页面区域 -->
+            <n class="flex-1 flex flex-row">
+                <!-- 电脑布局左侧显示栈底页面 -->
+                <transition name="flex-scale-x">
+                    <n class="flex flex-col w-80 border-l dark:border-zinc-900 border-gray-200"
+                        v-if="pufferStore.morph === 'expanded'">
+                        <component :is="pageController.stack[0]" />
+                    </n>
                 </transition>
+
+                <n class="flex flex-col flex-1 relative border-l dark:border-zinc-900 border-gray-200">
+                    <!-- 手机和电脑显示栈顶页面 -->
+                    <!-- 显示栈顶新旧切换动画 -->
+                    <transition
+                        :name="pufferStore.morph === 'expanded' ? 'disable' : `page-${pageController.animationType}-slide`">
+                        <component
+                            v-if="(pageController.stack.length > 0 && pufferStore.morph !== 'expanded') || pageController.stack.length > 1"
+                            :is="pageController.stack[pageController.stack.length - 1]" />
+                    </transition>
+                </n>
             </n>
         </n>
     </n>
@@ -101,17 +103,5 @@ pageController.push(Test1);
 .flex-scale-x-enter-from,
 .flex-scale-x-leave-to {
     width: 0;
-}
-
-/* 向下滑动动画 */
-.slide-fg-b-enter-active,
-.slide-fg-b-leave-active {
-    transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.slide-fg-b-enter-from,
-.slide-fg-b-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
 }
 </style>

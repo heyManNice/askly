@@ -13,69 +13,38 @@ import {
 } from 'vue';
 
 
-// 会话
-import ConversationsTop from '@pages/conversations/Top.vue';
-import ConversationsSub from '@pages/conversations/Sub.vue';
-
-// 角色
-import RolesTop from '@pages/roles/Top.vue';
-import RolesSub from '@pages/roles/Sub.vue';
-
-// 接口
-import ApisTop from '@pages/apis/Top.vue';
-import ApisSub from '@pages/apis/Sub.vue';
-
-// 数据库
-import DatabaseTop from '@pages/database/Top.vue';
-import DatabaseSub from '@pages/database/Sub.vue';
-
-// 资源
-import ResourcesTop from '@pages/resources/Top.vue';
-import ResourcesSub from '@pages/resources/Sub.vue';
 
 type Route = {
     id: string;
     label: string;
     icon: typeof FiMessageSquare;
-    top: Component;
-    sub: Component;
 };
 
 export const routes: Route[] = [
     {
         id: 'conversations',
         label: '会话',
-        icon: FiMessageSquare,
-        top: ConversationsTop,
-        sub: ConversationsSub
+        icon: FiMessageSquare
     },
     {
         id: 'roles',
         label: '角色',
         icon: FiUsers,
-        top: RolesTop,
-        sub: RolesSub
     },
     {
         id: 'apis',
         label: '接口',
-        icon: FiServer,
-        top: ApisTop,
-        sub: ApisSub
+        icon: FiServer
     },
     {
         id: 'database',
         label: '数据库',
-        icon: FiDatabase,
-        top: DatabaseTop,
-        sub: DatabaseSub
+        icon: FiDatabase
     },
     {
         id: 'resources',
         label: '资源',
-        icon: FiShoppingBag,
-        top: ResourcesTop,
-        sub: ResourcesSub
+        icon: FiShoppingBag
     }
 ];
 // 选中的路由
