@@ -3,48 +3,81 @@ import {
     FiServer,
     FiUsers,
     FiShoppingBag,
-    FiDatabase,
-    FiMenu
+    FiDatabase
 } from 'vue-icons-plus/fi';
 
 import {
-    ref,
-    Component
+    ref
 } from 'vue';
 
+import ConversationsList from '@pages/conversations/List.vue';
+import RolesList from '@pages/roles/List.vue';
+import ApisList from '@pages/apis/List.vue';
+import DatabaseList from '@pages/database/List.vue';
+import ResourcesList from '@pages/resources/List.vue';
+
+import {
+    usePageController
+} from '@pages/controller';
 
 
 type Route = {
     id: string;
     label: string;
     icon: typeof FiMessageSquare;
+    onClick: () => void;
 };
 
 export const routes: Route[] = [
     {
         id: 'conversations',
         label: '会话',
-        icon: FiMessageSquare
+        icon: FiMessageSquare,
+        onClick: () => {
+            const pageController = usePageController();
+            pageController.clear();
+            pageController.push(ConversationsList);
+        }
     },
     {
         id: 'roles',
         label: '角色',
         icon: FiUsers,
+        onClick: () => {
+            const pageController = usePageController();
+            pageController.clear();
+            pageController.push(RolesList);
+        }
     },
     {
         id: 'apis',
         label: '接口',
-        icon: FiServer
+        icon: FiServer,
+        onClick: () => {
+            const pageController = usePageController();
+            pageController.clear();
+            pageController.push(ApisList);
+        }
     },
     {
         id: 'database',
         label: '数据库',
-        icon: FiDatabase
+        icon: FiDatabase,
+        onClick: () => {
+            const pageController = usePageController();
+            pageController.clear();
+            pageController.push(DatabaseList);
+        }
     },
     {
         id: 'resources',
         label: '资源',
-        icon: FiShoppingBag
+        icon: FiShoppingBag,
+        onClick: () => {
+            const pageController = usePageController();
+            pageController.clear();
+            pageController.push(ResourcesList);
+        }
     }
 ];
 // 选中的路由

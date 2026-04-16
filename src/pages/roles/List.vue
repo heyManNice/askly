@@ -1,11 +1,10 @@
 <template>
-    <n class="flex-1">
-        <p @click="pageController.toSubPage()">角色：去二级页面</p>
+    <n class="flex-1 flex flex-col h-full">
+        <n class="flex-1">角色</n>
+        <mobile-nav />
     </n>
 </template>
 <script lang="ts" setup>
-import {
-    usePageController
-} from '@layouts/Mountain.controller';
-const pageController = usePageController();
+
+import MobileNav from '@components/MobileNav.vue';
 </script>

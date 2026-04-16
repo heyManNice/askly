@@ -6,7 +6,7 @@
         <template v-for="(route, i) in routes" :key="route.id">
             <n class="p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer" :class="{
                 'bg-gray-100 dark:bg-zinc-800': i === selectedRoute,
-            }" :title="route.label" @click="selectedRoute = i, pageController.toTopPage()">
+            }" :title="route.label" @click="selectedRoute = i, route.onClick()">
                 <component :is="route.icon" />
             </n>
         </template>
@@ -28,10 +28,5 @@ import {
     selectedRoute
 } from '@routes/main';
 
-import {
-    usePageController
-} from '@layouts/Mountain.controller';
-
-const pageController = usePageController();
 
 </script>
