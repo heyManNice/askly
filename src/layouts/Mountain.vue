@@ -10,19 +10,23 @@
             </n>
         </transition>
         <!-- 导航页面区域 -->
-        <n class="flex-1 flex flex-row relative">
+        <n class="flex-1 flex flex-row">
             <!-- 电脑布局显示栈第二页面 -->
             <!-- 仅在电脑并且有第二页面时显示 -->
-            <transition v-if="pageController.stack.length > 1"
-                :name="pufferStore.morph !== 'expanded' ? 'slide-bg-l' : 'flex-scale-x'">
-                <component :is="pageController.stack[pageController.stack.length - 2]" />
+            <transition name="flex-scale-x">
+                <n class="flex flex-col w-80" v-if="pageController.stack.length > 1 && pufferStore.morph == 'expanded'">
+                    <component :is="pageController.stack[pageController.stack.length - 2]" />
+                </n>
             </transition>
 
-            <!-- 手机和电脑显示栈顶页面 -->
-            <!-- 显示栈顶新旧切换动画 -->
-            <transition v-if="pageController.stack.length > 0">
-                <component :is="pageController.stack[pageController.stack.length - 1]" />
-            </transition>
+            <n class="flex flex-col flex-1 relative">
+                <!-- 手机和电脑显示栈顶页面 -->
+                <!-- 显示栈顶新旧切换动画 -->
+                <transition name="slide-fg-r">
+                    <component v-if="pageController.stack.length > 0"
+                        :is="pageController.stack[pageController.stack.length - 1]" />
+                </transition>
+            </n>
         </n>
     </n>
 </template>
@@ -60,6 +64,8 @@ onMounted(() => {
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
         box-shadow-color 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     box-shadow: -1rem 0 2rem rgba(0, 0, 0, 0.05);
+    position: absolute;
+    width: 100%;
 }
 
 .slide-fg-r-enter-from {
