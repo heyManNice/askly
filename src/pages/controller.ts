@@ -4,6 +4,7 @@ import {
 
 import {
     Component,
+    markRaw,
     ref
 } from "vue";
 
@@ -12,7 +13,7 @@ export const usePageController = defineStore('pageController', () => {
     const stack = ref<Component[]>([]);
 
     function push(conmponent: Component) {
-        stack.value.push(conmponent);
+        stack.value.push(markRaw(conmponent));
     }
 
     function pop() {
