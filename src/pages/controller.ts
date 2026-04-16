@@ -16,6 +16,10 @@ export const usePageController = defineStore('pageController', () => {
     const animationType = ref<'pop' | 'push'>('push');
 
     function push(conmponent: Component) {
+        // 如果栈顶和当前页面相同，就不压入新页面了
+        if (stack.value.length > 0 && stack.value[stack.value.length - 1] === conmponent) {
+            return;
+        }
         animationType.value = 'push';
         stack.value.push(markRaw(conmponent));
     }
