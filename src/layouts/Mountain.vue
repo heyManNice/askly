@@ -47,11 +47,8 @@ import {
 } from '@pages/controller';
 const pageController = usePageController();
 
-import Test1 from '@pages/conversations/Top.vue';
-
-pageController.push(Test1);
-
-
+import ConversationList from '@pages/conversations/List.vue';
+pageController.push(ConversationList);
 </script>
 
 <style scoped>
