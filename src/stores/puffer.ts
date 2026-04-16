@@ -28,10 +28,13 @@ export const usePufferStore = defineStore('puffer', () => {
         }
     });
 
-    const onResizeQueue: Array<(m: typeof morph.value) => void> = [];
+    const onResizeQueue = new Set<(m: typeof morph.value) => void>();
 
-    function onResize(callback: typeof onResizeQueue[number]) {
-        onResizeQueue.push(callback);
+    function onResize(callback: (m: typeof morph.value) => void) {
+        onResizeQueue.add(callback);
+        onScopeDispose(() => {
+            onResizeQueue.delete(callback);
+        });
     }
 
     function updateScreenWidth() {
