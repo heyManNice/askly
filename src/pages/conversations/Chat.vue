@@ -200,6 +200,12 @@ function resetWindowToLatest() {
     windowStart.value = Math.max(0, total - PAGE_SIZE);
 }
 
+function trimWindowToLatest(preferredCount = PAGE_SIZE) {
+    const total = allMessages.value.length;
+    windowEnd.value = total;
+    windowStart.value = Math.max(0, total - preferredCount);
+}
+
 async function loadOlderChunk() {
     const container = messageContainerRef.value;
     if (!container || windowStart.value <= 0) {
@@ -255,6 +261,15 @@ function onMessageScroll() {
 
     const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
     if (remaining <= 20) {
+        // 回到底部时，主动收缩为最新窗口，避免 DOM 长时间保持较大切片
+        if (windowEnd.value >= allMessages.value.length) {
+            if (windowEnd.value - windowStart.value > PAGE_SIZE) {
+                trimWindowToLatest(PAGE_SIZE);
+                void scrollToBottom();
+            }
+            return;
+        }
+
         void loadNewerChunk();
     }
 }
@@ -284,14 +299,13 @@ async function sendCurrentInput() {
 
     await chatStore.sendMessage(roleId, text, () => {
         if (shouldStick) {
+            trimWindowToLatest(PAGE_SIZE);
             void scrollToBottom();
         }
     });
 
-    windowEnd.value = allMessages.value.length;
-    if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
-        windowStart.value = windowEnd.value - MAX_DOM_COUNT;
-    }
+    // 新消息返回后保持仅渲染最新窗口，防止 DOM 持续增长
+    trimWindowToLatest(PAGE_SIZE);
 
     if (shouldStick) {
         await scrollToBottom();
@@ -314,18 +328,30 @@ watch(
 
 watch(
     () => allMessages.value.length,
-    async () => {
+    async (nextLength, prevLength) => {
         if (windowEnd.value === 0 && allMessages.value.length > 0) {
             resetWindowToLatest();
             await scrollToBottom();
             return;
         }
 
-        if (isNearBottom()) {
-            windowEnd.value = allMessages.value.length;
-            if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
-                windowStart.value = windowEnd.value - MAX_DOM_COUNT;
+        // 始终确保消息窗口不会超过上限
+        if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
+            windowStart.value = Math.max(0, windowEnd.value - MAX_DOM_COUNT);
+        }
+
+        const hasNewMessage = nextLength > prevLength;
+        if (hasNewMessage) {
+            // AI/用户新增消息后，如果当前在底部附近，直接切回最新几条
+            if (isNearBottom()) {
+                trimWindowToLatest(PAGE_SIZE);
+                await scrollToBottom();
+                return;
             }
+        }
+
+        if (isNearBottom()) {
+            trimWindowToLatest(PAGE_SIZE);
             await scrollToBottom();
         }
     }
