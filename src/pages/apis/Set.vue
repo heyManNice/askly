@@ -41,6 +41,10 @@ import {
     useApiSubPageController,
     useApisStore
 } from '@stores/apis';
+import {
+    usePageController
+} from '@pages/controller';
+const pageController = usePageController();
 
 const apisStore = useApisStore();
 
@@ -97,13 +101,15 @@ function onSaveApi() {
             model: m,
         });
     }
+    pageController.pop();
 }
 
 function onDelApi() {
     const id = aspc.selected?.id;
     if (!id) return;
     if (confirm('确定要删除这个接口吗？')) {
-        apisStore.delApiToDb(id)
+        apisStore.delApiToDb(id);
+        pageController.pop();
     }
 }
 </script>
