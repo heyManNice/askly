@@ -1,11 +1,11 @@
 <template>
-    <n v-if="pufferStore.morph !== 'expanded' && pageController.stack.length > 1" @mousedown="handleMouseDown"
+    <n v-if="pufferStore.morph !== 'expanded' && pageStack.stack.length > 1" @mousedown="handleMouseDown"
         class="flex flex-row px-2 pr-7">
         <!-- 左边返回图标 -->
-        <FiChevronLeft @mousedown.stop @click="pageController.pop()"
+        <FiChevronLeft @mousedown.stop @click="pageStack.pop()"
             class="w-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 rounded block" />
         <!-- 标题内容 -->
-        <n class="mr-auto ml-auto">{{ title ?? '详情' }}</n>
+        <n class="mr-auto ml-auto">{{ props.title ?? '详情' }}</n>
     </n>
 </template>
 <script lang="ts" setup>
@@ -15,11 +15,15 @@ import {
 } from 'vue-icons-plus/fi';
 
 
-import { usePufferStore } from '@stores/puffer';
+import {
+    usePufferStore
+} from '@stores/puffer';
 const pufferStore = usePufferStore();
 
-import { usePageController } from '@pages/controller';
-const pageController = usePageController();
+import {
+    usePageStackStore
+} from '@stores/pageStack';
+const pageStack = usePageStackStore();
 
 // 鼠标左键拖动标题栏
 function handleMouseDown(event: MouseEvent) {
@@ -31,10 +35,8 @@ function handleMouseDown(event: MouseEvent) {
     }
 }
 
-const prop = defineProps<{
+const props = defineProps<{
     title?: string;
 }>();
-
-const title = prop.title;
 
 </script>

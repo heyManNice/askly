@@ -1,8 +1,8 @@
 <template>
     <n class="flex flex-col gap-2 bg-white dark:bg-black h-full">
-        <MobileAppBar :title="aspc.selected?.name || '新建接口'" />
-        <n v-if="aspc.selected" class="p-3 flex flex-col gap-3">
-            <n class="text-sm text-gray-500 dark:text-zinc-400">接口 ID: {{ aspc.selected?.id ?? '新建接口' }}</n>
+        <MobileAppBar :title="apiEditor.draftApi?.name || '新建接口'" />
+        <n v-if="apiEditor.draftApi" class="p-3 flex flex-col gap-3">
+            <n class="text-sm text-gray-500 dark:text-zinc-400">接口 ID: {{ apiEditor.draftApi?.id ?? '新建接口' }}</n>
 
             <TextInput v-model="name" label="名称" placeholder="qwen-plus" default-value="qwen-plus" />
             <TextInput v-model="url" label="Base URL" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -16,7 +16,7 @@
                     @click="onSaveApi">
                     保存
                 </button>
-                <button v-if="aspc.selected?.id"
+                <button v-if="apiEditor.draftApi?.id"
                     class="px-3 h-9 rounded bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 cursor-pointer"
                     @click="onDelApi">
                     删除
@@ -38,17 +38,17 @@ import {
 import TextInput from '@components/TextInput.vue';
 import MobileAppBar from '@components/MobileAppBar.vue';
 import {
-    useApiSubPageController,
+    useApiEditorStore,
     useApisStore
 } from '@stores/apis';
 import {
-    usePageController
-} from '@pages/controller';
-const pageController = usePageController();
+    usePageStackStore
+} from '@stores/pageStack';
+const pageStack = usePageStackStore();
 
 const apisStore = useApisStore();
 
-const aspc = useApiSubPageController();
+const apiEditor = useApiEditorStore();
 
 const name = ref('');
 const url = ref('');
@@ -56,7 +56,7 @@ const key = ref('');
 const model = ref('');
 
 watch(
-    () => aspc.selected,
+    () => apiEditor.draftApi,
     (selected) => {
         if (!selected) {
             name.value = '';
@@ -74,7 +74,7 @@ watch(
     { immediate: true },
 );
 
-function onSaveApi() {
+async function onSaveApi() {
     const n = name.value;
     const u = url.value;
     const k = key.value;
@@ -85,31 +85,31 @@ function onSaveApi() {
         return;
     }
 
-    if (aspc.selected?.id) {
-        apisStore.updateApiToDb({
-            id: aspc.selected.id,
+    if (apiEditor.draftApi?.id) {
+        await apisStore.updateApi({
+            id: apiEditor.draftApi.id,
             name: n,
             url: u,
             key: k,
             model: m,
         });
     } else {
-        apisStore.addApiToDb({
+        await apisStore.addApi({
             name: n,
             url: u,
             key: k,
             model: m,
         });
     }
-    pageController.pop();
+    pageStack.pop();
 }
 
-function onDelApi() {
-    const id = aspc.selected?.id;
+async function onDelApi() {
+    const id = apiEditor.draftApi?.id;
     if (!id) return;
     if (confirm('确定要删除这个接口吗？')) {
-        apisStore.delApiToDb(id);
-        pageController.pop();
+        await apisStore.deleteApi(id);
+        pageStack.pop();
     }
 }
 </script>

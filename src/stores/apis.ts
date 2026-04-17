@@ -14,79 +14,73 @@ import {
 export const useApisStore = defineStore('apis', () => {
     const apiList = ref<DBKey<typeof apis>[]>([]);
 
-    // 更新api列表
-    async function updateApiList() {
-        apiList.value = await apis.toArray()
+    async function refreshApis() {
+        apiList.value = await apis.toArray();
     }
 
-    // 添加api
-    function addApiToDb(api: {
+    async function addApi(api: {
         name: string;
         url: string;
         key: string;
         model: string;
     }) {
-        apis.add({
+        await apis.add({
             name: api.name,
             url: api.url,
             key: api.key,
             model: api.model,
             createdAt: new Date(),
             updatedAt: new Date(),
-        }).then(() => {
-            updateApiList();
         });
+
+        await refreshApis();
     }
 
-    // 更新一个api
-    function updateApiToDb(api: {
+    async function updateApi(api: {
         id: number;
         name: string;
         url: string;
         key: string;
         model: string;
     }) {
-        apis.update(api.id, {
+        await apis.update(api.id, {
             name: api.name,
             url: api.url,
             key: api.key,
             model: api.model,
             updatedAt: new Date(),
-        }).then(() => {
-            updateApiList();
         });
+
+        await refreshApis();
     }
 
-    // 删除一个api
-    function delApiToDb(id: number) {
-        apis.delete(id).then(() => {
-            updateApiList();
-        });
+    async function deleteApi(id: number) {
+        await apis.delete(id);
+        await refreshApis();
     }
 
-    updateApiList();
+    refreshApis();
     return {
         apiList,
-        updateApiList,
-        addApiToDb,
-        updateApiToDb,
-        delApiToDb,
+        refreshApis,
+        addApi,
+        updateApi,
+        deleteApi,
     };
 });
 
 import {
-    usePageController
-} from '@pages/controller';
+    usePageStackStore
+} from '@stores/pageStack';
 
 import ApisSet from '@pages/apis/Set.vue';
 
-// api二级页面控制器
-export const useApiSubPageController = defineStore('apiSubPageController', () => {
-    const pageController = usePageController();
-    const selected = ref<DBKey<typeof apis> | null>(null);
+export const useApiEditorStore = defineStore('apiEditor', () => {
+    const pageStack = usePageStackStore();
+    const draftApi = ref<DBKey<typeof apis> | null>(null);
 
-    function toCreateApiPage() {
-        selected.value = {
+    function openCreateApi() {
+        draftApi.value = {
             name: '',
             url: '',
             key: '',
@@ -94,16 +88,17 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        pageController.push(ApisSet);
+        pageStack.push(ApisSet);
     }
 
-    function toEditApiPage(api: DBKey<typeof apis>) {
-        selected.value = api;
-        pageController.push(ApisSet);
+    function openEditApi(api: DBKey<typeof apis>) {
+        draftApi.value = api;
+        pageStack.push(ApisSet);
     }
+
     return {
-        selected,
-        toCreateApiPage,
-        toEditApiPage
+        draftApi,
+        openCreateApi,
+        openEditApi,
     };
 });

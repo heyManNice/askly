@@ -1,19 +1,19 @@
 <template>
     <transition class="px-2" name="slide-fg-b">
         <!-- 导航图标 -->
-        <TransitionGroup v-if="pufferStore.morph === 'compact' && pageController.stack.length < 2" name="slide" tag="div"
+        <TransitionGroup v-if="pufferStore.morph === 'compact' && pageStack.stack.length < 2" name="slide" tag="div"
             class="mobile-nav-group" @before-leave="onBeforeLeave">
             <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
                 class="flex flex-col items-center cursor-pointer w-15" :class="{
-                    'text-blue-400': i === selectedRoute && !props.isMoreNav
-                }" @click="selectedRoute = i, route.onClick()">
+                    'text-blue-400': i === activeRouteIndex && !props.isMoreNav
+                }" @click="openRoute(i)">
                 <component :is="route.icon" />
                 <n class="text-xs">{{ route.label }}</n>
             </n>
             <!-- 额外的导航项 -->
             <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
                 'text-blue-400': props.isMoreNav
-            }" @click="pageController.replace(MobileMoreNavPage)">
+            }" @click="pageStack.replace(MobileMoreNavPage)">
                 <FiMenu />
                 <n class=" text-xs">更多</n>
             </n>
@@ -29,7 +29,8 @@ import {
 
 import {
     routes,
-    selectedRoute,
+    activeRouteIndex,
+    openRoute,
 } from '@routes/main';
 
 import {
@@ -39,10 +40,10 @@ import {
 const pufferStore = usePufferStore();
 
 import {
-    usePageController
-} from '@pages/controller';
+    usePageStackStore
+} from '@stores/pageStack';
 
-const pageController = usePageController();
+const pageStack = usePageStackStore();
 
 import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
 

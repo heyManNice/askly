@@ -8,9 +8,9 @@
         <!-- more的导航选项 -->
         <n class="flex-1">
             <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
-                <n v-for="route in moreRoutes" :key="route.id"
+                <n v-for="(route, offset) in moreRoutes" :key="route.id"
                     class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
-                    @click="route.onClickInMorePage?.()">
+                    @click="openRoute(offset + pufferStore.mobileNavIconCount, 'push')">
                     <!-- 图标 -->
                     <component :is="route.icon" class="w-5 h-5" />
                     <!-- 标签 -->
@@ -43,7 +43,8 @@ import MobileNav from '@components/MobileNav.vue';
 
 import {
     routes,
-    selectedRoute
+    activeRouteIndex,
+    openRoute,
 } from '@routes/main';
 
 const moreRoutes = computed(() => {
@@ -52,7 +53,7 @@ const moreRoutes = computed(() => {
 
 // 当电脑版页面切换的时候如果more页面显示则自动切换到对应的导航页
 if (pufferStore.morph === 'expanded') {
-    routes[selectedRoute.value].onClick();
+    openRoute(activeRouteIndex.value);
 }
 </script>
 

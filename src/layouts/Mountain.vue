@@ -15,8 +15,8 @@
                 <!-- 电脑布局左侧显示栈底页面 -->
                 <transition name="flex-scale-x">
                     <n class="flex flex-col w-60 border-l dark:border-zinc-900 border-gray-200 overflow-hidden"
-                        v-if="pufferStore.morph === 'expanded'">
-                        <component :is="pageController.stack[0]" />
+                        v-if="pufferStore.morph === 'expanded' && rootPage">
+                        <component :is="rootPage" />
                     </n>
                 </transition>
 
@@ -24,10 +24,10 @@
                     <!-- 手机和电脑显示栈顶页面 -->
                     <!-- 显示栈顶新旧切换动画 -->
                     <transition
-                        :name="pufferStore.morph === 'expanded' ? 'disable' : `page-${pageController.animationType}-slide`">
+                        :name="pufferStore.morph === 'expanded' ? 'disable' : `page-${pageStack.transition}-slide`">
                         <component class="absolute w-full"
-                            v-if="(pageController.stack.length > 0 && pufferStore.morph !== 'expanded') || pageController.stack.length > 1"
-                            :is="pageController.stack[pageController.stack.length - 1]" />
+                            v-if="topPage && ((pageStack.stack.length > 0 && pufferStore.morph !== 'expanded') || pageStack.stack.length > 1)"
+                            :is="topPage" />
                     </transition>
                 </n>
             </n>
@@ -37,18 +37,23 @@
 
 <script lang="ts" setup>
 import {
+    computed
+} from 'vue';
+
+import {
     usePufferStore
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
 
 import {
-    usePageController
-} from '@pages/controller';
-const pageController = usePageController();
+    usePageStackStore
+} from '@stores/pageStack';
 
-import ConversationList from '@pages/conversations/List.vue';
-pageController.push(ConversationList);
+const pageStack = usePageStackStore();
+
+const rootPage = computed(() => pageStack.stack[0]);
+const topPage = computed(() => pageStack.stack[pageStack.stack.length - 1]);
 </script>
 
 <style scoped>

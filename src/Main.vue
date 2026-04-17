@@ -15,4 +15,10 @@
 import Mountain from '@layouts/Mountain.vue';
 import DesktopNav from '@components/DesktopNav.vue';
 import MobileNav from '@components/MobileNav.vue';
+
+import {
+    initializeNavigation
+} from '@routes/main';
+
+initializeNavigation();
 </script>

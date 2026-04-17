@@ -8,7 +8,7 @@
         </n>
         <!-- 会话列表区域 -->
         <n class="flex-1 flex flex-col gap-2 overflow-y-auto px-2">
-            <n v-for="conversation in conversations" :key="conversation.id" @click="pageController.push(Chat)"
+            <n v-for="conversation in conversations" :key="conversation.id" @click="pageStack.push(Chat)"
                 class="flex items-center rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 gap-2">
                 <!-- 头像 -->
                 <img class="w-10 rounded" :src="conversation.avatar" alt="avatar">
@@ -46,10 +46,10 @@ import Chat from '@pages/conversations/Chat.vue';
 import MobileNav from '@components/MobileNav.vue';
 
 import {
-    usePageController
-} from '@pages/controller';
+    usePageStackStore
+} from '@stores/pageStack';
 
-const pageController = usePageController();
+const pageStack = usePageStackStore();
 
 import {
     usePufferStore
@@ -59,8 +59,8 @@ const pufferStore = usePufferStore();
 
 // 如果切换到电脑模式并且页面栈只有一个页面，就压列表第一页
 function pushFirstSubPageIfNeed() {
-    if (pufferStore.morph === 'expanded' && pageController.stack.length === 1) {
-        pageController.push(Chat);
+    if (pufferStore.morph === 'expanded' && pageStack.stack.length === 1) {
+        pageStack.push(Chat);
     }
 }
 pushFirstSubPageIfNeed();
