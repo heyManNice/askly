@@ -25,7 +25,7 @@
                     <!-- 显示栈顶新旧切换动画 -->
                     <transition
                         :name="pufferStore.morph === 'expanded' ? 'disable' : `page-${pageController.animationType}-slide`">
-                        <component
+                        <component class="absolute w-full"
                             v-if="(pageController.stack.length > 0 && pufferStore.morph !== 'expanded') || pageController.stack.length > 1"
                             :is="pageController.stack[pageController.stack.length - 1]" />
                     </transition>
@@ -57,15 +57,11 @@ pageController.push(ConversationList);
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
         box-shadow-color 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     box-shadow: -1rem 0 2rem rgba(0, 0, 0, 0.05);
-    position: absolute;
-    width: 100%;
 }
 
 .page-push-slide-leave-active,
 .page-pop-slide-enter-active {
     transition: transform 0.5s ease;
-    position: absolute;
-    width: 100%;
 }
 
 /* 页面管理器push的时候的动画 */
