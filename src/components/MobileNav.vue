@@ -1,19 +1,19 @@
 <template>
     <transition class="px-2" name="slide-fg-b">
         <!-- 导航图标 -->
-        <TransitionGroup v-if="pufferStore.morph === 'compact'" name="slide" tag="div" class="mobile-nav-group"
-            @before-leave="onBeforeLeave">
+        <TransitionGroup v-if="pufferStore.morph === 'compact' && pageController.stack.length < 2" name="slide" tag="div"
+            class="mobile-nav-group" @before-leave="onBeforeLeave">
             <n v-for="(route, i) in routes.slice(0, pufferStore.mobileNavIconCount)" :key="route.id"
                 class="flex flex-col items-center cursor-pointer w-15" :class="{
-                    'text-blue-400': i === selectedRoute
+                    'text-blue-400': i === selectedRoute && !props.isMoreNav
                 }" @click="selectedRoute = i, route.onClick()">
                 <component :is="route.icon" />
                 <n class="text-xs">{{ route.label }}</n>
             </n>
             <!-- 额外的导航项 -->
             <n key="more" class="flex flex-col items-center cursor-pointer w-15" :class="{
-                'text-blue-400': 0
-            }">
+                'text-blue-400': props.isMoreNav
+            }" @click="pageController.replace(MobileMoreNavPage)">
                 <FiMenu />
                 <n class=" text-xs">更多</n>
             </n>
@@ -37,6 +37,18 @@ import {
 } from '@stores/puffer';
 
 const pufferStore = usePufferStore();
+
+import {
+    usePageController
+} from '@pages/controller';
+
+const pageController = usePageController();
+
+import MobileMoreNavPage from '@components/MobileMoreNavPage.vue';
+
+const props = defineProps<{
+    isMoreNav?: boolean
+}>();
 
 // 离开动画的flip效果
 function onBeforeLeave(el: Element) {

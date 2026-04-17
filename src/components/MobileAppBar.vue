@@ -1,5 +1,6 @@
 <template>
-    <n v-if="pufferStore.morph !== 'expanded'" @mousedown="handleMouseDown" class="flex flex-row px-2 pb-2  pr-12">
+    <n v-if="pufferStore.morph !== 'expanded' && pageController.stack.length > 1" @mousedown="handleMouseDown"
+        class="flex flex-row px-2 pr-12">
         <!-- 左边返回图标 -->
         <FiChevronLeft @mousedown.stop @click="pageController.pop()"
             class="w-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 rounded block" />

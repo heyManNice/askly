@@ -26,6 +26,7 @@ type Route = {
     label: string;
     icon: typeof FiMessageSquare;
     onClick: () => void;
+    onClickInMorePage?: () => void;
 };
 
 export const routes: Route[] = [
@@ -54,6 +55,10 @@ export const routes: Route[] = [
         onClick: () => {
             const pageController = usePageController();
             pageController.replace(ApisList);
+        },
+        onClickInMorePage: () => {
+            const pageController = usePageController();
+            pageController.push(ApisList);
         }
     },
     {
@@ -63,6 +68,10 @@ export const routes: Route[] = [
         onClick: () => {
             const pageController = usePageController();
             pageController.replace(DatabaseList);
+        },
+        onClickInMorePage: () => {
+            const pageController = usePageController();
+            pageController.push(DatabaseList);
         }
     },
     {
@@ -72,6 +81,10 @@ export const routes: Route[] = [
         onClick: () => {
             const pageController = usePageController();
             pageController.replace(ResourcesList);
+        },
+        onClickInMorePage: () => {
+            const pageController = usePageController();
+            pageController.push(ResourcesList);
         }
     }
 ];

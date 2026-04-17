@@ -1,22 +1,25 @@
 <template>
-    <n class="flex-1 flex flex-col">
+    <n class="flex-1 flex flex-col h-full">
         <!-- 设置头像 -->
         <n class="flex pb-2 pt-2 px-2">
             <!-- 左边的头像 -->
             <img :src="avatar" alt="avatar" class="rounded w-15">
         </n>
         <!-- more的导航选项 -->
-        <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
-            <n v-for="route in moreRoutes" :key="route.id"
-                class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
-                @click="mspc.toSubPage(route.label)">
-                <!-- 图标 -->
-                <component :is="route.icon" class="w-5 h-5" />
-                <!-- 标签 -->
-                <n class="mr-auto">{{ route.label }}</n>
-                <FiChevronRight class="w-4 h-4" />
-            </n>
-        </TransitionGroup>
+        <n class="flex-1">
+            <TransitionGroup name="more-nav" tag="div" class="more-nav-list">
+                <n v-for="route in moreRoutes" :key="route.id"
+                    class="flex gap-3 px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer items-center"
+                    @click="route.onClickInMorePage?.()">
+                    <!-- 图标 -->
+                    <component :is="route.icon" class="w-5 h-5" />
+                    <!-- 标签 -->
+                    <n class="mr-auto">{{ route.label }}</n>
+                    <FiChevronRight class="w-4 h-4" />
+                </n>
+            </TransitionGroup>
+        </n>
+        <mobile-nav :is-more-nav="true" />
     </n>
 </template>
 <script lang="ts" setup>
@@ -36,11 +39,7 @@ import {
 
 const pufferStore = usePufferStore();
 
-import {
-    useMoreSubPageController
-} from '@stores/more';
-
-const mspc = useMoreSubPageController();
+import MobileNav from '@components/MobileNav.vue';
 
 import {
     routes

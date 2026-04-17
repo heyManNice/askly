@@ -1,5 +1,6 @@
 <template>
-    <n class="flex flex-col gap-2 bg:white dark:bg-black h-full">
+    <n class="flex flex-col gap-2 bg-white dark:bg-black h-full">
+        <MobileAppBar title="接口" />
         <!-- 新建接口按钮 -->
         <n @click="aspc.toCreateApiPage()"
             class="h-8 flex shrink-0 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-900 rounded items-center justify-center cursor-pointer mx-2">
@@ -27,6 +28,8 @@ import {
     useApisStore,
     useApiSubPageController
 } from '@stores/apis';
+
+import MobileAppBar from '@src/components/MobileAppBar.vue';
 
 import {
     usePufferStore
