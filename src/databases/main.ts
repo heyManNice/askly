@@ -29,6 +29,8 @@ class Database extends Dexie {
         avatar: Blob;
         // 描述，相当于备注没什么用
         description: string;
+        // 使用的api接口id
+        apiId: number;
         // 提示词
         prompts: string;
         // 随机度
