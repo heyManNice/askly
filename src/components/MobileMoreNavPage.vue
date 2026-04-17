@@ -42,12 +42,18 @@ const pufferStore = usePufferStore();
 import MobileNav from '@components/MobileNav.vue';
 
 import {
-    routes
+    routes,
+    selectedRoute
 } from '@routes/main';
 
 const moreRoutes = computed(() => {
     return routes.slice(pufferStore.mobileNavIconCount);
 });
+
+// 当电脑版页面切换的时候如果more页面显示则自动切换到对应的导航页
+if (pufferStore.morph === 'expanded') {
+    routes[selectedRoute.value].onClick();
+}
 </script>
 
 <style scoped>
