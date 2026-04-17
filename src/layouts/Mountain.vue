@@ -14,7 +14,7 @@
             <n class="flex-1 flex flex-row">
                 <!-- 电脑布局左侧显示栈底页面 -->
                 <transition name="flex-scale-x">
-                    <n class="flex flex-col w-80 border-l dark:border-zinc-900 border-gray-200"
+                    <n class="flex flex-col w-60 border-l dark:border-zinc-900 border-gray-200"
                         v-if="pufferStore.morph === 'expanded'">
                         <component :is="pageController.stack[0]" />
                     </n>
