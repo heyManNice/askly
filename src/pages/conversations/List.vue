@@ -44,7 +44,7 @@
 
                     <!-- 详细内容 -->
                     <n class="text-sm text-gray-500 truncate">
-                        {{ chatStore.getRoleSummary(role.id).lastMessage }}
+                        {{ getSummaryText(role.id) }}
                     </n>
                 </n>
             </n>
@@ -89,13 +89,21 @@ const chatStore = useChatStore();
 const keyword = ref('');
 const avatarUrlMap = ref<Record<number, string>>({});
 
+const sortedRoles = computed(() => {
+    return [...rolesStore.roleList].sort((a, b) => {
+        const timeA = a.id ? (chatStore.getRoleSummary(a.id).updatedAt?.getTime() ?? 0) : 0;
+        const timeB = b.id ? (chatStore.getRoleSummary(b.id).updatedAt?.getTime() ?? 0) : 0;
+        return timeB - timeA;
+    });
+});
+
 const filteredRoles = computed(() => {
     const q = keyword.value.trim().toLowerCase();
     if (q === '') {
-        return rolesStore.roleList;
+        return sortedRoles.value;
     }
 
-    return rolesStore.roleList.filter((role) => {
+    return sortedRoles.value.filter((role) => {
         return role.name.toLowerCase().includes(q) || role.description.toLowerCase().includes(q);
     });
 });
@@ -141,7 +149,40 @@ function formatSummaryTime(roleId?: number) {
         return '';
     }
 
-    return updatedAt.toLocaleDateString();
+    const now = new Date();
+
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const targetStart = new Date(updatedAt.getFullYear(), updatedAt.getMonth(), updatedAt.getDate());
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const diffDays = Math.floor((todayStart.getTime() - targetStart.getTime()) / msPerDay);
+
+    if (diffDays === 0) {
+        return updatedAt.toLocaleTimeString('zh-CN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        });
+    }
+
+    if (diffDays === 1) {
+        return '昨天';
+    }
+
+    if (updatedAt.getFullYear() === now.getFullYear()) {
+        const month = `${updatedAt.getMonth() + 1}`.padStart(2, '0');
+        const day = `${updatedAt.getDate()}`.padStart(2, '0');
+        return `${month}-${day}`;
+    }
+
+    return `${updatedAt.getFullYear()}`;
+}
+
+function getSummaryText(roleId?: number) {
+    if (!roleId) {
+        return '暂无消息';
+    }
+
+    return chatStore.getRoleSummary(roleId).lastMessage;
 }
 
 async function openRoleChat(roleId?: number) {
@@ -164,8 +205,9 @@ async function initializeConversations() {
     await chatStore.refreshRoleSummaries(roleIds);
     rebuildAvatarUrls();
 
-    if (roleIds.length > 0 && chatStore.activeRoleId === null) {
-        await chatStore.openRole(roleIds[0]);
+    const firstRoleId = sortedRoles.value[0]?.id;
+    if (typeof firstRoleId === 'number' && chatStore.activeRoleId === null) {
+        await chatStore.openRole(firstRoleId);
     }
 
     // 如果切换到电脑模式并且页面栈只有一个页面，就压入聊天页
