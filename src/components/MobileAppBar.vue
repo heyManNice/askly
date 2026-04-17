@@ -1,7 +1,7 @@
 <template>
     <n v-if="pufferStore.morph !== 'expanded'" @mousedown="handleMouseDown" class="flex flex-row px-2 pb-2  pr-12">
         <!-- 左边返回图标 -->
-        <FiChevronLeft @mousedown.stop @click="pageController.toTopPage()"
+        <FiChevronLeft @mousedown.stop @click="pageController.pop()"
             class="w-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 rounded block" />
         <!-- 标题内容 -->
         <n class="mr-auto ml-auto">{{ title ?? '详情' }}</n>
@@ -17,9 +17,7 @@ import {
 import { usePufferStore } from '@stores/puffer';
 const pufferStore = usePufferStore();
 
-import {
-    usePageController
-} from '@layouts/Mountain.controller';
+import { usePageController } from '@pages/controller';
 const pageController = usePageController();
 
 // 鼠标左键拖动标题栏

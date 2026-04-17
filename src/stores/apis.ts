@@ -76,7 +76,9 @@ export const useApisStore = defineStore('apis', () => {
 
 import {
     usePageController
-} from '@layouts/Mountain.controller';
+} from '@pages/controller';
+
+import ApisSet from '@pages/apis/Set.vue';
 
 // api二级页面控制器
 export const useApiSubPageController = defineStore('apiSubPageController', () => {
@@ -92,22 +94,16 @@ export const useApiSubPageController = defineStore('apiSubPageController', () =>
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        pageController.toSubPage();
+        pageController.push(ApisSet);
     }
 
     function toEditApiPage(api: DBKey<typeof apis>) {
         selected.value = api;
-        pageController.toSubPage();
-    }
-
-    function toApiListPage() {
-        selected.value = null;
-        pageController.toTopPage();
+        pageController.push(ApisSet);
     }
     return {
         selected,
         toCreateApiPage,
-        toEditApiPage,
-        toApiListPage
+        toEditApiPage
     };
 });
