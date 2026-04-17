@@ -88,6 +88,8 @@ class Database extends Dexie {
 export const db = new Database();
 export const apis = db.apis;
 export const roles = db.roles;
+export const hotMessages = db.hotMessages;
+export const coldMessages = db.coldMessages;
 
 
 export type DBKey<T extends Table<any, any, any>> = T extends Table<infer R, any, any> ? R : never;

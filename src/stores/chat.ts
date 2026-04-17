@@ -1,543 +1,328 @@
-import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
-import { streamAssistant, type ChatMessage } from "@services/llm";
-import { useSettingsStore } from "@stores/settings";
+import {
+    defineStore
+} from 'pinia';
 
-const CHAT_DB_NAME = "ezi-ai-db";
-const CHAT_DB_VERSION = 2;
-const CHAT_META_STORE_NAME = "chat-meta";
-const CHAT_CONVERSATION_STORE_NAME = "chat-conversations";
-const CHAT_META_KEY = "meta";
-const PERSIST_DEBOUNCE_MS = 400;
+import {
+    computed,
+    ref
+} from 'vue';
 
-type ChatConversation = {
-    id: string;
-    title: string;
-    createdAt: number;
-    updatedAt: number;
-    messages: ChatMessage[];
+import {
+    apis,
+    coldMessages,
+    hotMessages,
+    roles,
+    type DBKey
+} from '@databases/main';
+
+import {
+    streamAssistant,
+    type ChatMessage,
+    type LlmRuntimeSettings
+} from '@services/llm';
+
+type ChatTableMessage = DBKey<typeof hotMessages>;
+
+type RoleSummary = {
+    roleId: number;
+    lastMessage: string;
+    updatedAt: Date | null;
+    total: number;
 };
 
-type ChatSnapshot = {
-    conversations: ChatConversation[];
-    activeConversationId: string | null;
-};
+const HOT_KEEP_COUNT = 1;
 
-type ChatMetaRecord = {
-    id: string;
-    activeConversationId: string | null;
-    conversationOrder: string[];
-};
-
-function generateId(prefix: string) {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+function generateUuid(prefix: string) {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function buildNewConversation(): ChatConversation {
-    const now = Date.now();
-    return {
-        id: generateId("conv"),
-        title: "新对话",
-        createdAt: now,
-        updatedAt: now,
-        messages: [],
-    };
+function toTimestamp(value: Date) {
+    return value.getTime();
 }
 
-function getTitleFromMessages(messages: ChatMessage[]) {
-    const firstUser = messages.find((msg) => msg.role === "user");
-    if (!firstUser) {
-        return "新对话";
-    }
-
-    const cleaned = firstUser.content.replace(/\s+/g, " ").trim();
-    return cleaned.length > 20 ? `${cleaned.slice(0, 20)}...` : cleaned;
+function sortMessagesAsc(list: ChatTableMessage[]) {
+    return [...list].sort((a, b) => toTimestamp(a.createdAt) - toTimestamp(b.createdAt));
 }
 
-function buildInitialSnapshot(): ChatSnapshot {
-    const initial = buildNewConversation();
-    return {
-        conversations: [initial],
-        activeConversationId: initial.id,
-    };
+function toChatMessagesForLlm(list: ChatTableMessage[]) {
+    const mapped = list
+        .filter((item) => item.type === 'user' || item.type === 'assistant')
+        .map((item): ChatMessage => {
+            return {
+                id: item.uuid,
+                role: item.type,
+                content: item.content,
+                createdAt: toTimestamp(item.createdAt),
+            };
+        });
+
+    return mapped;
 }
 
-function normalizeMessage(raw: unknown): ChatMessage | null {
-    if (typeof raw !== "object" || raw === null) {
-        return null;
+function normalizePreview(content: string) {
+    const trimmed = content.replace(/\s+/g, ' ').trim();
+    if (trimmed === '') {
+        return '暂无消息';
     }
-
-    const message = raw as Partial<ChatMessage>;
-    if (typeof message.id !== "string" || typeof message.content !== "string") {
-        return null;
-    }
-    if (message.role !== "user" && message.role !== "assistant") {
-        return null;
-    }
-
-    const createdAt =
-        typeof message.createdAt === "number" && Number.isFinite(message.createdAt)
-            ? message.createdAt
-            : Date.now();
-
-    return {
-        id: message.id,
-        role: message.role,
-        content: message.content,
-        createdAt,
-    };
+    return trimmed.length > 80 ? `${trimmed.slice(0, 80)}...` : trimmed;
 }
 
-function normalizeConversation(raw: unknown): ChatConversation | null {
-    if (typeof raw !== "object" || raw === null) {
-        return null;
-    }
+async function fetchRoleMessagesFromTables(roleId: number) {
+    const [hotList, coldList] = await Promise.all([
+        hotMessages.where('roleId').equals(roleId).toArray(),
+        coldMessages.where('roleId').equals(roleId).toArray(),
+    ]);
 
-    const conversation = raw as Partial<ChatConversation>;
-    if (typeof conversation.id !== "string") {
-        return null;
-    }
-
-    const messages = Array.isArray(conversation.messages)
-        ? conversation.messages
-            .map((item) => normalizeMessage(item))
-            .filter((item): item is ChatMessage => item !== null)
-        : [];
-
-    const createdAt =
-        typeof conversation.createdAt === "number" && Number.isFinite(conversation.createdAt)
-            ? conversation.createdAt
-            : Date.now();
-
-    const updatedAt =
-        typeof conversation.updatedAt === "number" && Number.isFinite(conversation.updatedAt)
-            ? conversation.updatedAt
-            : createdAt;
-
-    const title =
-        typeof conversation.title === "string" && conversation.title.trim() !== ""
-            ? conversation.title
-            : getTitleFromMessages(messages);
-
-    return {
-        id: conversation.id,
-        title,
-        createdAt,
-        updatedAt,
-        messages,
-    };
+    return sortMessagesAsc([
+        ...coldList,
+        ...hotList,
+    ]);
 }
 
-function normalizeMetaRecord(raw: unknown): ChatMetaRecord | null {
-    if (typeof raw !== "object" || raw === null) {
-        return null;
+export const useChatStore = defineStore('chat', () => {
+    const activeRoleId = ref<number | null>(null);
+    const roleMessagesMap = ref<Record<number, ChatTableMessage[]>>({});
+    const roleSummaryMap = ref<Record<number, RoleSummary>>({});
+    const loadingRoleId = ref<number | null>(null);
+    const errorMessage = ref('');
+
+    const isLoading = computed(() => loadingRoleId.value !== null);
+
+    let initializePromise: Promise<void> | null = null;
+
+    function setRoleMessages(roleId: number, list: ChatTableMessage[]) {
+        roleMessagesMap.value = {
+            ...roleMessagesMap.value,
+            [roleId]: sortMessagesAsc(list),
+        };
+        updateRoleSummary(roleId);
     }
 
-    const meta = raw as Partial<ChatMetaRecord>;
-    const conversationOrder = Array.isArray(meta.conversationOrder)
-        ? meta.conversationOrder.filter((id): id is string => typeof id === "string")
-        : [];
+    function updateRoleSummary(roleId: number) {
+        const list = roleMessagesMap.value[roleId] ?? [];
+        const last = list.length > 0 ? list[list.length - 1] : null;
 
-    return {
-        id: CHAT_META_KEY,
-        activeConversationId: typeof meta.activeConversationId === "string" ? meta.activeConversationId : null,
-        conversationOrder,
-    };
-}
-
-function normalizeSnapshot(raw: unknown): ChatSnapshot {
-    if (!raw) {
-        return buildInitialSnapshot();
+        roleSummaryMap.value = {
+            ...roleSummaryMap.value,
+            [roleId]: {
+                roleId,
+                lastMessage: last ? normalizePreview(last.content) : '暂无消息',
+                updatedAt: last?.createdAt ?? null,
+                total: list.length,
+            },
+        };
     }
 
-    try {
-        const parsed = typeof raw === "string" ? (JSON.parse(raw) as Partial<ChatSnapshot>) : (raw as Partial<ChatSnapshot>);
-        const conversations = Array.isArray(parsed.conversations)
-            ? parsed.conversations.filter((item): item is ChatConversation => {
-                return (
-                    typeof item?.id === "string" &&
-                    typeof item?.title === "string" &&
-                    Array.isArray(item?.messages)
-                );
-            })
-            : [];
+    async function compactHotMessagesOnStartup() {
+        const allHot = await hotMessages.toArray();
+        const roleGrouped = new Map<number, ChatTableMessage[]>();
 
-        if (conversations.length === 0) {
-            return buildInitialSnapshot();
+        for (const message of allHot) {
+            const group = roleGrouped.get(message.roleId) ?? [];
+            group.push(message);
+            roleGrouped.set(message.roleId, group);
         }
 
-        const activeConversationId =
-            typeof parsed.activeConversationId === "string" &&
-                conversations.some((item) => item.id === parsed.activeConversationId)
-                ? parsed.activeConversationId
-                : conversations[0].id;
+        const toMove: ChatTableMessage[] = [];
 
-        return {
-            conversations,
-            activeConversationId,
-        };
-    } catch {
-        const initial = buildNewConversation();
-        return {
-            conversations: [initial],
-            activeConversationId: initial.id,
-        };
-    }
-}
+        for (const grouped of roleGrouped.values()) {
+            const sortedDesc = [...grouped].sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
+            const overflow = sortedDesc.slice(HOT_KEEP_COUNT);
+            if (overflow.length > 0) {
+                toMove.push(...overflow);
+            }
+        }
 
-function openChatDb(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-        if (typeof indexedDB === "undefined") {
-            reject(new Error("IndexedDB is not available"));
+        if (toMove.length === 0) {
             return;
         }
 
-        const request = indexedDB.open(CHAT_DB_NAME, CHAT_DB_VERSION);
+        await hotMessages.db.transaction('rw', hotMessages, coldMessages, async () => {
+            await coldMessages.bulkPut(toMove);
+            await hotMessages.bulkDelete(toMove.map((item) => item.uuid));
+        });
+    }
 
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains(CHAT_META_STORE_NAME)) {
-                db.createObjectStore(CHAT_META_STORE_NAME, { keyPath: "id" });
-            }
-            if (!db.objectStoreNames.contains(CHAT_CONVERSATION_STORE_NAME)) {
-                db.createObjectStore(CHAT_CONVERSATION_STORE_NAME, { keyPath: "id" });
-            }
+    async function initialize() {
+        if (initializePromise) {
+            return initializePromise;
+        }
+
+        initializePromise = (async () => {
+            await compactHotMessagesOnStartup();
+        })();
+
+        return initializePromise;
+    }
+
+    async function loadRoleMessages(roleId: number) {
+        await initialize();
+        const list = await fetchRoleMessagesFromTables(roleId);
+        setRoleMessages(roleId, list);
+        return list;
+    }
+
+    async function refreshRoleSummaries(roleIds: number[]) {
+        await initialize();
+
+        await Promise.all(
+            roleIds.map(async (roleId) => {
+                const list = await fetchRoleMessagesFromTables(roleId);
+                setRoleMessages(roleId, list);
+            }),
+        );
+    }
+
+    function getRoleMessages(roleId: number) {
+        return roleMessagesMap.value[roleId] ?? [];
+    }
+
+    function getRoleSummary(roleId: number) {
+        return roleSummaryMap.value[roleId] ?? {
+            roleId,
+            lastMessage: '暂无消息',
+            updatedAt: null,
+            total: 0,
         };
-
-        request.onsuccess = () => {
-            resolve(request.result);
-        };
-
-        request.onerror = () => {
-            reject(request.error ?? new Error("Failed to open IndexedDB"));
-        };
-    });
-}
-
-function readSnapshotFromDb(): Promise<ChatSnapshot | null> {
-    return new Promise((resolve, reject) => {
-        void openChatDb()
-            .then((db) => {
-                const tx = db.transaction([CHAT_META_STORE_NAME, CHAT_CONVERSATION_STORE_NAME], "readonly");
-                const metaStore = tx.objectStore(CHAT_META_STORE_NAME);
-                const conversationStore = tx.objectStore(CHAT_CONVERSATION_STORE_NAME);
-                const metaRequest = metaStore.get(CHAT_META_KEY);
-                const conversationsRequest = conversationStore.getAll();
-
-                tx.oncomplete = () => {
-                    db.close();
-
-                    const meta = normalizeMetaRecord(metaRequest.result);
-                    const normalizedConversations = Array.isArray(conversationsRequest.result)
-                        ? conversationsRequest.result
-                            .map((item) => normalizeConversation(item))
-                            .filter((item): item is ChatConversation => item !== null)
-                        : [];
-
-                    if (normalizedConversations.length === 0) {
-                        resolve(null);
-                        return;
-                    }
-
-                    const order = meta?.conversationOrder ?? [];
-                    const orderMap = new Map(order.map((id, index) => [id, index]));
-                    const orderedConversations = [...normalizedConversations].sort((a, b) => {
-                        const indexA = orderMap.get(a.id);
-                        const indexB = orderMap.get(b.id);
-
-                        if (indexA !== undefined && indexB !== undefined) {
-                            return indexA - indexB;
-                        }
-                        if (indexA !== undefined) {
-                            return -1;
-                        }
-                        if (indexB !== undefined) {
-                            return 1;
-                        }
-                        return b.updatedAt - a.updatedAt;
-                    });
-
-                    const activeConversationId =
-                        meta?.activeConversationId && orderedConversations.some((item) => item.id === meta.activeConversationId)
-                            ? meta.activeConversationId
-                            : orderedConversations[0].id;
-
-                    resolve(
-                        normalizeSnapshot({
-                            conversations: orderedConversations,
-                            activeConversationId,
-                        }),
-                    );
-                };
-
-                tx.onerror = () => {
-                    db.close();
-                    reject(tx.error ?? new Error("Failed to read chat snapshot"));
-                };
-
-                metaRequest.onerror = () => {
-                    reject(metaRequest.error ?? new Error("Failed to read chat meta"));
-                };
-
-                conversationsRequest.onerror = () => {
-                    reject(conversationsRequest.error ?? new Error("Failed to read conversations"));
-                };
-            })
-            .catch((error) => {
-                reject(error);
-            });
-    });
-}
-
-function toPersistableSnapshot(snapshot: ChatSnapshot): ChatSnapshot {
-    // Strip Vue proxies/reactive wrappers so IndexedDB can clone the value safely.
-    return normalizeSnapshot(JSON.parse(JSON.stringify(snapshot)) as Partial<ChatSnapshot>);
-}
-
-function writeSnapshotToDb(snapshot: ChatSnapshot): Promise<void> {
-    return new Promise((resolve, reject) => {
-        void openChatDb()
-            .then((db) => {
-                const persistableSnapshot = toPersistableSnapshot(snapshot);
-                const tx = db.transaction([CHAT_META_STORE_NAME, CHAT_CONVERSATION_STORE_NAME], "readwrite");
-                const metaStore = tx.objectStore(CHAT_META_STORE_NAME);
-                const conversationStore = tx.objectStore(CHAT_CONVERSATION_STORE_NAME);
-                const nextConversationIds = new Set(persistableSnapshot.conversations.map((item) => item.id));
-
-                metaStore.put({
-                    id: CHAT_META_KEY,
-                    activeConversationId: persistableSnapshot.activeConversationId,
-                    conversationOrder: persistableSnapshot.conversations.map((item) => item.id),
-                } satisfies ChatMetaRecord);
-
-                const keysRequest = conversationStore.getAllKeys();
-
-                keysRequest.onsuccess = () => {
-                    const existingIds = keysRequest.result
-                        .filter((key): key is string => typeof key === "string");
-
-                    for (const id of existingIds) {
-                        if (!nextConversationIds.has(id)) {
-                            conversationStore.delete(id);
-                        }
-                    }
-
-                    for (const conversation of persistableSnapshot.conversations) {
-                        conversationStore.put(conversation);
-                    }
-                };
-
-                keysRequest.onerror = () => {
-                    reject(keysRequest.error ?? new Error("Failed to enumerate conversation keys"));
-                };
-
-                tx.oncomplete = () => {
-                    db.close();
-                    resolve();
-                };
-
-                tx.onerror = () => {
-                    db.close();
-                    reject(tx.error ?? new Error("Failed to write chat snapshot"));
-                };
-            })
-            .catch((error) => {
-                reject(error);
-            });
-    });
-}
-
-export const useChatStore = defineStore("chat", () => {
-    const snapshot = ref<ChatSnapshot>(buildInitialSnapshot());
-    const isHydrated = ref(false);
-    const isLoading = ref(false);
-    const errorMessage = ref("");
-
-    let persistTimer: ReturnType<typeof setTimeout> | null = null;
-    let hasPendingPersist = false;
-    let persistQueue: Promise<void> = Promise.resolve();
-
-    function schedulePersist() {
-        hasPendingPersist = true;
-        if (persistTimer !== null) {
-            return;
-        }
-
-        persistTimer = setTimeout(() => {
-            persistTimer = null;
-            if (!hasPendingPersist) {
-                return;
-            }
-            hasPendingPersist = false;
-
-            persistQueue = persistQueue
-                .then(() => writeSnapshotToDb(snapshot.value))
-                .catch((error) => {
-                    console.warn("Failed to persist chat snapshot to IndexedDB", error);
-                });
-        }, PERSIST_DEBOUNCE_MS);
     }
 
-    async function hydrateSnapshot() {
-        try {
-            const dbSnapshot = await readSnapshotFromDb();
-            if (dbSnapshot) {
-                snapshot.value = dbSnapshot;
-                return;
-            }
-
-            await writeSnapshotToDb(snapshot.value);
-        } catch (error) {
-            console.warn("Failed to hydrate chat snapshot from IndexedDB", error);
-        } finally {
-            isHydrated.value = true;
-        }
+    async function openRole(roleId: number) {
+        activeRoleId.value = roleId;
+        errorMessage.value = '';
+        await loadRoleMessages(roleId);
     }
 
-    void hydrateSnapshot();
-
-    watch(
-        snapshot,
-        () => {
-            if (!isHydrated.value) {
-                return;
-            }
-
-            schedulePersist();
-        },
-        { deep: true },
-    );
-
-    const conversations = computed(() => {
-        return [...snapshot.value.conversations].sort((a, b) => b.updatedAt - a.updatedAt);
-    });
-
-    const activeConversation = computed(() => {
-        const activeId = snapshot.value.activeConversationId;
-        return snapshot.value.conversations.find((item) => item.id === activeId) ?? null;
-    });
-
-    function setActiveConversation(id: string) {
-        if (!snapshot.value.conversations.some((item) => item.id === id)) {
-            return;
-        }
-        snapshot.value.activeConversationId = id;
-    }
-
-    function createConversation() {
-        const next = buildNewConversation();
-        snapshot.value.conversations.unshift(next);
-        snapshot.value.activeConversationId = next.id;
-        errorMessage.value = "";
-    }
-
-    function removeConversation(id: string) {
-        const index = snapshot.value.conversations.findIndex((item) => item.id === id);
-        if (index < 0) {
-            return;
-        }
-
-        snapshot.value.conversations.splice(index, 1);
-
-        if (snapshot.value.conversations.length === 0) {
-            const next = buildNewConversation();
-            snapshot.value.conversations.push(next);
-            snapshot.value.activeConversationId = next.id;
-            return;
-        }
-
-        if (snapshot.value.activeConversationId === id) {
-            snapshot.value.activeConversationId = snapshot.value.conversations[0].id;
-        }
-    }
-
-    async function sendMessage(content: string) {
+    async function sendMessage(roleId: number, content: string, onToken?: (content: string) => void) {
         const question = content.trim();
-        if (question === "" || isLoading.value) {
+        if (question === '' || isLoading.value) {
             return;
         }
 
-        let target = activeConversation.value;
-        if (!target) {
-            createConversation();
-            target = activeConversation.value;
+        await initialize();
+
+        const role = await roles.get(roleId);
+        if (!role) {
+            throw new Error('角色不存在，请先创建角色。');
         }
 
-        if (!target) {
-            return;
+        const api = await apis.get(role.apiId);
+        if (!api) {
+            throw new Error('当前角色未绑定可用接口，请先在角色设置中选择接口。');
         }
 
-        errorMessage.value = "";
+        if (!(roleId in roleMessagesMap.value)) {
+            await loadRoleMessages(roleId);
+        }
 
-        const userMessage: ChatMessage = {
-            id: generateId("msg"),
-            role: "user",
+        const current = [
+            ...(roleMessagesMap.value[roleId] ?? []),
+        ];
+
+        const now = new Date();
+        const userMessage: ChatTableMessage = {
+            uuid: generateUuid('user'),
+            roleId,
             content: question,
-            createdAt: Date.now(),
+            type: 'user',
+            createdAt: now,
         };
 
-        target.messages.push(userMessage);
-        target.title = getTitleFromMessages(target.messages);
-        target.updatedAt = Date.now();
-
-        const settingsStore = useSettingsStore();
-        const assistantMessageId = generateId("msg");
-        const assistantMessage: ChatMessage = {
-            id: assistantMessageId,
-            role: "assistant",
-            content: "",
-            createdAt: Date.now(),
+        const assistantMessage: ChatTableMessage = {
+            uuid: generateUuid('assistant'),
+            roleId,
+            content: '',
+            type: 'assistant',
+            createdAt: new Date(now.getTime() + 1),
         };
 
+        current.push(userMessage);
+        current.push(assistantMessage);
+        setRoleMessages(roleId, current);
 
-        let liveAssistantMessage: ChatMessage | null = null;
+        await hotMessages.bulkPut([
+            userMessage,
+            assistantMessage,
+        ]);
 
-        isLoading.value = true;
+        const history = toChatMessagesForLlm(current.filter((item) => item.uuid !== assistantMessage.uuid));
+        const contextLimit = Number.isFinite(role.contextLimit) && role.contextLimit > 0
+            ? Math.floor(role.contextLimit)
+            : history.length;
+
+        const llmHistory = contextLimit > 0 ? history.slice(-contextLimit) : history;
+
+        const runtimeSettings: LlmRuntimeSettings = {
+            apiKey: api.key,
+            baseUrl: api.url,
+            model: api.model,
+            temperature: role.temperature,
+            systemPrompt: role.prompts,
+            outputLimit: role.outputLimit,
+        };
+
+        loadingRoleId.value = roleId;
+        errorMessage.value = '';
+
+        let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+        const flushAssistantToDb = async () => {
+            await hotMessages.update(assistantMessage.uuid, {
+                content: assistantMessage.content,
+            });
+        };
+
         try {
-            const finalAnswer = await streamAssistant(
-                settingsStore.settings,
-                target.messages,
-                (token) => {
-                    if (liveAssistantMessage === null) {
-                        target.messages.push(assistantMessage);
-                        liveAssistantMessage = target.messages.find((msg) => msg.id === assistantMessageId) ?? null;
-                        if (!liveAssistantMessage) {
-                            return;
-                        }
-                    }
-                    liveAssistantMessage.content += token;
-                    target.updatedAt = Date.now();
-                },
-            );
+            const finalAnswer = await streamAssistant(runtimeSettings, llmHistory, (token) => {
+                assistantMessage.content += token;
+
+                setRoleMessages(roleId, current);
+                if (onToken) {
+                    onToken(assistantMessage.content);
+                }
+
+                if (flushTimer !== null) {
+                    return;
+                }
+
+                flushTimer = setTimeout(() => {
+                    flushTimer = null;
+                    void flushAssistantToDb();
+                }, 120);
+            });
 
             assistantMessage.content = finalAnswer;
-            target.updatedAt = Date.now();
+            setRoleMessages(roleId, current);
+            await flushAssistantToDb();
         } catch (error) {
-            if (assistantMessage.content.trim() === "") {
-                target.messages = target.messages.filter((msg) => msg.id !== assistantMessage.id);
+            if (assistantMessage.content.trim() === '') {
+                assistantMessage.content = '(未收到有效响应)';
+                setRoleMessages(roleId, current);
+                await hotMessages.update(assistantMessage.uuid, {
+                    content: assistantMessage.content,
+                });
             }
 
-            errorMessage.value = error instanceof Error ? error.message : "请求失败，请稍后再试。";
+            errorMessage.value = error instanceof Error ? error.message : '请求失败，请稍后再试。';
         } finally {
-            if (
-                assistantMessage.content.trim() === "" &&
-                target.messages.some((msg) => msg.id === assistantMessage.id)
-            ) {
-                assistantMessage.content = "(未收到有效响应)";
+            if (flushTimer !== null) {
+                clearTimeout(flushTimer);
+                flushTimer = null;
             }
-            target.updatedAt = Date.now();
-            isLoading.value = false;
+            loadingRoleId.value = null;
+            updateRoleSummary(roleId);
         }
     }
 
     return {
-        conversations,
-        activeConversation,
+        activeRoleId,
         isLoading,
         errorMessage,
-        setActiveConversation,
-        createConversation,
-        removeConversation,
+        initialize,
+        openRole,
+        loadRoleMessages,
+        refreshRoleSummaries,
+        getRoleMessages,
+        getRoleSummary,
         sendMessage,
     };
 });

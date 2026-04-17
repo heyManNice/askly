@@ -20,5 +20,12 @@ import {
     initializeNavigation
 } from '@routes/main';
 
+import {
+    useChatStore
+} from '@stores/chat';
+
 initializeNavigation();
+
+const chatStore = useChatStore();
+void chatStore.initialize();
 </script>

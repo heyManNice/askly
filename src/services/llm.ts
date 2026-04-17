@@ -1,6 +1,14 @@
 import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";
-import type { AssistantSettings } from "@stores/settings";
+
+export type LlmRuntimeSettings = {
+    apiKey: string;
+    baseUrl: string;
+    model: string;
+    temperature: number;
+    systemPrompt: string;
+    outputLimit?: number;
+};
 
 export type ChatRole = "user" | "assistant";
 
@@ -11,7 +19,7 @@ export type ChatMessage = {
     createdAt: number;
 };
 
-function buildModel(settings: AssistantSettings) {
+function buildModel(settings: LlmRuntimeSettings) {
     const apiKey = settings.apiKey.trim();
     if (!apiKey) {
         throw new Error("请先在设置中填写 API Key。");
@@ -24,6 +32,10 @@ function buildModel(settings: AssistantSettings) {
         apiKey,
         model: modelName,
         temperature: settings.temperature,
+        maxTokens:
+            typeof settings.outputLimit === "number" && Number.isFinite(settings.outputLimit) && settings.outputLimit > 0
+                ? Math.floor(settings.outputLimit)
+                : undefined,
         configuration: {
             baseURL,
         },
@@ -31,7 +43,7 @@ function buildModel(settings: AssistantSettings) {
 }
 
 function buildLangchainMessages(
-    settings: AssistantSettings,
+    settings: LlmRuntimeSettings,
     messages: ChatMessage[],
 ) {
     const langchainMessages = [];
@@ -89,7 +101,7 @@ function chunkToText(chunk: unknown) {
 }
 
 export async function streamAssistant(
-    settings: AssistantSettings,
+    settings: LlmRuntimeSettings,
     messages: ChatMessage[],
     onToken: (token: string) => void,
 ): Promise<string> {
@@ -117,7 +129,7 @@ export async function streamAssistant(
 }
 
 export async function askAssistant(
-    settings: AssistantSettings,
+    settings: LlmRuntimeSettings,
     messages: ChatMessage[],
 ): Promise<string> {
     let result = "";
