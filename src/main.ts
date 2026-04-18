@@ -29,7 +29,7 @@ windowm.getCurrentWindow().then(win => {
     // 注册全局快捷键
     shortcut.register({
         alt: true,
-        key: "C",
+        key: "F",
     }, async() => {
         if(await win.isFocused()) {
             await win.hide();
