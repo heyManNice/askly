@@ -45,6 +45,9 @@
             ],
             "@databases/*": [
                 "src/databases/*"
+            ],
+            "@functions/*": [
+                "src/functions/*"
             ]
         },
         "resolveJsonModule": true,
