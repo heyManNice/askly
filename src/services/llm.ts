@@ -10,7 +10,7 @@ export type LlmRuntimeSettings = {
     outputLimit?: number;
 };
 
-export type ChatRole = "user" | "assistant";
+export type ChatRole = "user" | "assistant" | "system";
 
 export type ChatMessage = {
     id: string;
