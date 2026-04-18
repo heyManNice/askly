@@ -30,12 +30,14 @@ windowm.getCurrentWindow().then(win => {
     shortcut.register({
         alt: true,
         key: "F",
-    }, async() => {
-        if(await win.isFocused()) {
+    }, async () => {
+        if (await win.isFocused()) {
             await win.hide();
-        }else{
+        } else {
             await win.show();
             await win.focus();
         }
+    }).catch((err) => {
+        alert("注册快捷键失败");
     });
 })
