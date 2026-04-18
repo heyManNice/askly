@@ -1,10 +1,13 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import { cssXraySetup } from "@utils/cssXray";
+
 import "@src/main.css";
 
 import Main from "@src/Main.vue";
 import diffHtmlDirective from "@directives/diffHtml";
+import tray from "@eziapp-org/bridge/tray";
+import windowm from "@eziapp-org/bridge/windowm";
 
 const app = createApp(Main);
 app.use(createPinia());
@@ -17,3 +20,8 @@ if (import.meta.env.DEV) {
         shortcut: "shift+d"
     });
 }
+
+windowm.getCurrentWindow().then(w => {
+    // 显示托盘图标
+    tray.show(w);
+})
