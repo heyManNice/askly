@@ -12,7 +12,7 @@
         <n class="flex-1 flex flex-col gap-2 overflow-y-auto px-2">
             <n v-if="filteredRoles.length === 0"
                 class="text-sm text-gray-500 dark:text-zinc-400 rounded bg-gray-50 dark:bg-zinc-900 p-3">
-                暂无可用角色，请先到角色页面创建。
+                无会话
             </n>
 
             <n v-for="role in filteredRoles" :key="role.id" @click="openRoleChat(role.id)"
