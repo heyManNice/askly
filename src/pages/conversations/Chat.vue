@@ -26,7 +26,8 @@
         </n>
 
         <!-- 会话消息区 -->
-        <n ref="messageContainerRef" class="flex-1 overflow-y-auto px-2 py-2" @scroll="onMessageScroll">
+        <n ref="messageContainerRef" class="flex-1 overflow-y-auto px-2 py-2" @wheel.passive="onMessageWheel"
+            @scroll="onMessageScroll">
             <n v-if="visibleMessages.length === 0" class="text-sm text-gray-500 dark:text-zinc-400 px-1 py-2">
                 暂无消息，发送第一条开始对话。
             </n>
@@ -34,7 +35,7 @@
             <n v-for="message in visibleMessages" :key="message.uuid" class="mb-2 flex" :class="{
                 'justify-end': message.type === 'user',
                 'justify-start': message.type !== 'user',
-            }">
+            }" :data-message-id="message.uuid">
                 <!-- 消息气泡 -->
                 <n
                     class="max-w-[90%] rounded px-3 py-2 text-sm leading-6 select-text bg-gray-50 text-gray-900 dark:bg-zinc-900 dark:text-zinc-200">
@@ -134,14 +135,28 @@ const mediaButtons: MediaButton[] = [
     }
 ];
 
-const PAGE_SIZE = 10;
-const MAX_DOM_COUNT = 20;
+const CHUNK_SIZE = 20;
+const OVERLAP_SIZE = 6;
+const CHUNK_STEP = Math.max(1, CHUNK_SIZE - OVERLAP_SIZE);
+const EDGE_TRIGGER_GAP = 20;
+const SWITCH_COOLDOWN_MS = 160;
 
 const inputValue = ref('');
 const messageContainerRef = ref<HTMLElement | null>(null);
 
 const windowStart = ref(0);
-const windowEnd = ref(0);
+const isSwitchingChunk = ref(false);
+const switchCooldownUntil = ref(0);
+const lastScrollTop = ref(0);
+const lastWheelDirection = ref<'up' | 'down' | ''>('');
+
+type AnchorEdge = 'top' | 'bottom';
+
+type ScrollAnchor = {
+    messageId: string;
+    edge: AnchorEdge;
+    offset: number;
+};
 
 const activeRole = computed(() => {
     const roleId = chatStore.activeRoleId;
@@ -162,10 +177,18 @@ const allMessages = computed(() => {
 });
 
 const visibleMessages = computed(() => {
-    const end = Math.min(windowEnd.value, allMessages.value.length);
-    const start = Math.max(0, Math.min(windowStart.value, end));
+    const start = Math.max(0, Math.min(windowStart.value, allMessages.value.length));
+    const end = Math.min(start + CHUNK_SIZE, allMessages.value.length);
     return allMessages.value.slice(start, end);
 });
+
+function getLatestWindowStart(total: number) {
+    return Math.max(0, total - CHUNK_SIZE);
+}
+
+function isViewingLatestChunk() {
+    return windowStart.value >= getLatestWindowStart(allMessages.value.length);
+}
 
 function renderMessageHtml(content: string) {
     const unsafeHtml = md.render(content || '');
@@ -179,7 +202,7 @@ function isNearBottom() {
     }
 
     const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
-    return remaining < 24;
+    return remaining <= EDGE_TRIGGER_GAP;
 }
 
 async function scrollToBottom() {
@@ -190,85 +213,190 @@ async function scrollToBottom() {
     }
 
     container.scrollTop = container.scrollHeight;
+    lastScrollTop.value = container.scrollTop;
 }
 
 function resetWindowToLatest() {
-    const total = allMessages.value.length;
-    windowEnd.value = total;
-    windowStart.value = Math.max(0, total - PAGE_SIZE);
+    windowStart.value = getLatestWindowStart(allMessages.value.length);
+    switchCooldownUntil.value = Date.now() + SWITCH_COOLDOWN_MS;
+    lastWheelDirection.value = '';
 }
 
-function trimWindowToLatest(preferredCount = PAGE_SIZE) {
-    const total = allMessages.value.length;
-    windowEnd.value = total;
-    windowStart.value = Math.max(0, total - preferredCount);
-}
-
-async function loadOlderChunk() {
+function getMessageElements() {
     const container = messageContainerRef.value;
-    if (!container || windowStart.value <= 0) {
+    if (!container) {
+        return [];
+    }
+
+    return Array.from(container.querySelectorAll<HTMLElement>('[data-message-id]'));
+}
+
+function captureScrollAnchor(edge: AnchorEdge): ScrollAnchor | null {
+    const container = messageContainerRef.value;
+    if (!container) {
+        return null;
+    }
+
+    const elements = getMessageElements();
+    if (elements.length === 0) {
+        return null;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const visibleElements = elements.filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.bottom > containerRect.top && rect.top < containerRect.bottom;
+    });
+
+    const source = visibleElements.length > 0 ? visibleElements : elements;
+    const anchorElement = edge === 'top'
+        ? source[0]
+        : source[source.length - 1];
+    const messageId = anchorElement.dataset.messageId;
+
+    if (!messageId) {
+        return null;
+    }
+
+    const rect = anchorElement.getBoundingClientRect();
+    const offset = edge === 'top'
+        ? rect.top - containerRect.top
+        : containerRect.bottom - rect.bottom;
+
+    return {
+        messageId,
+        edge,
+        offset,
+    };
+}
+
+function restoreScrollAnchor(anchor: ScrollAnchor) {
+    const container = messageContainerRef.value;
+    if (!container) {
+        return false;
+    }
+
+    const anchorElement = getMessageElements().find((element) => {
+        return element.dataset.messageId === anchor.messageId;
+    });
+
+    if (!anchorElement) {
+        return false;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const rect = anchorElement.getBoundingClientRect();
+    const currentOffset = anchor.edge === 'top'
+        ? rect.top - containerRect.top
+        : containerRect.bottom - rect.bottom;
+    const delta = currentOffset - anchor.offset;
+
+    if (anchor.edge === 'top') {
+        container.scrollTop += delta;
+    } else {
+        container.scrollTop -= delta;
+    }
+
+    lastScrollTop.value = container.scrollTop;
+    return true;
+}
+
+async function switchToOlderChunk() {
+    const container = messageContainerRef.value;
+    if (!container || windowStart.value <= 0 || isSwitchingChunk.value) {
         return;
     }
 
-    const prevHeight = container.scrollHeight;
-    const prevTop = container.scrollTop;
+    const anchor = captureScrollAnchor('top');
+    isSwitchingChunk.value = true;
+    windowStart.value = Math.max(0, windowStart.value - CHUNK_STEP);
 
-    const nextStart = Math.max(0, windowStart.value - PAGE_SIZE);
+    try {
+        await nextTick();
+        const restored = anchor ? restoreScrollAnchor(anchor) : false;
+        if (!restored) {
+            const target = container.scrollHeight - container.clientHeight - EDGE_TRIGGER_GAP;
+            container.scrollTop = Math.max(0, target);
+            lastScrollTop.value = container.scrollTop;
+        }
+    } finally {
+        isSwitchingChunk.value = false;
+        switchCooldownUntil.value = Date.now() + SWITCH_COOLDOWN_MS;
+        lastWheelDirection.value = '';
+    }
+}
+
+async function switchToNewerChunk() {
+    const container = messageContainerRef.value;
+    if (!container || isSwitchingChunk.value) {
+        return;
+    }
+
+    const nextStart = windowStart.value + CHUNK_STEP;
+    if (nextStart >= allMessages.value.length) {
+        return;
+    }
+
+    const anchor = captureScrollAnchor('bottom');
+    isSwitchingChunk.value = true;
     windowStart.value = nextStart;
 
-    if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
-        windowEnd.value = windowStart.value + MAX_DOM_COUNT;
+    try {
+        await nextTick();
+        const restored = anchor ? restoreScrollAnchor(anchor) : false;
+        if (!restored) {
+            const maxTop = Math.max(0, container.scrollHeight - container.clientHeight);
+            container.scrollTop = Math.min(EDGE_TRIGGER_GAP, maxTop);
+            lastScrollTop.value = container.scrollTop;
+        }
+    } finally {
+        isSwitchingChunk.value = false;
+        switchCooldownUntil.value = Date.now() + SWITCH_COOLDOWN_MS;
+        lastWheelDirection.value = '';
     }
-
-    await nextTick();
-
-    const nextHeight = container.scrollHeight;
-    container.scrollTop = prevTop + (nextHeight - prevHeight);
 }
 
-async function loadNewerChunk() {
-    const container = messageContainerRef.value;
-    if (!container || windowEnd.value >= allMessages.value.length) {
+function onMessageWheel(event: WheelEvent) {
+    if (event.deltaY < 0) {
+        lastWheelDirection.value = 'up';
         return;
     }
 
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-
-    windowEnd.value = Math.min(allMessages.value.length, windowEnd.value + PAGE_SIZE);
-
-    if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
-        windowStart.value = Math.max(0, windowEnd.value - MAX_DOM_COUNT);
+    if (event.deltaY > 0) {
+        lastWheelDirection.value = 'down';
     }
-
-    await nextTick();
-
-    const nextTop = container.scrollHeight - container.clientHeight - distanceFromBottom;
-    container.scrollTop = Math.max(0, nextTop);
 }
 
 function onMessageScroll() {
     const container = messageContainerRef.value;
-    if (!container) {
+    if (!container || isSwitchingChunk.value) {
         return;
     }
 
-    if (container.scrollTop <= 20) {
-        void loadOlderChunk();
+    if (Date.now() < switchCooldownUntil.value) {
+        lastScrollTop.value = container.scrollTop;
         return;
     }
 
-    const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
-    if (remaining <= 20) {
-        // 回到底部时，主动收缩为最新窗口，避免 DOM 长时间保持较大切片
-        if (windowEnd.value >= allMessages.value.length) {
-            if (windowEnd.value - windowStart.value > PAGE_SIZE) {
-                trimWindowToLatest(PAGE_SIZE);
-                void scrollToBottom();
-            }
-            return;
-        }
+    const currentTop = container.scrollTop;
+    const isMovingUp = currentTop < lastScrollTop.value;
+    const isMovingDown = currentTop > lastScrollTop.value;
+    lastScrollTop.value = currentTop;
 
-        void loadNewerChunk();
+    const intendsUp = lastWheelDirection.value === 'up' || isMovingUp;
+    const intendsDown = lastWheelDirection.value === 'down' || isMovingDown;
+
+    const isAtTopEdge = currentTop <= EDGE_TRIGGER_GAP;
+    const remaining = container.scrollHeight - currentTop - container.clientHeight;
+    const isAtBottomEdge = remaining <= EDGE_TRIGGER_GAP;
+
+    if (isAtTopEdge && windowStart.value > 0 && intendsUp) {
+        void switchToOlderChunk();
+        return;
+    }
+
+    if (isAtBottomEdge && intendsDown) {
+        void switchToNewerChunk();
     }
 }
 
@@ -297,15 +425,13 @@ async function sendCurrentInput() {
 
     await chatStore.sendMessage(roleId, text, () => {
         if (shouldStick) {
-            trimWindowToLatest(PAGE_SIZE);
+            resetWindowToLatest();
             void scrollToBottom();
         }
     });
 
-    // 新消息返回后保持仅渲染最新窗口，防止 DOM 持续增长
-    trimWindowToLatest(PAGE_SIZE);
-
     if (shouldStick) {
+        resetWindowToLatest();
         await scrollToBottom();
     }
 }
@@ -327,29 +453,26 @@ watch(
 watch(
     () => allMessages.value.length,
     async (nextLength, prevLength) => {
-        if (windowEnd.value === 0 && allMessages.value.length > 0) {
+        if (nextLength === 0) {
+            windowStart.value = 0;
+            return;
+        }
+
+        if (prevLength === 0 && nextLength > 0) {
             resetWindowToLatest();
             await scrollToBottom();
             return;
         }
 
-        // 始终确保消息窗口不会超过上限
-        if (windowEnd.value - windowStart.value > MAX_DOM_COUNT) {
-            windowStart.value = Math.max(0, windowEnd.value - MAX_DOM_COUNT);
+        if (windowStart.value >= nextLength) {
+            resetWindowToLatest();
+            await nextTick();
+            return;
         }
 
         const hasNewMessage = nextLength > prevLength;
-        if (hasNewMessage) {
-            // AI/用户新增消息后，如果当前在底部附近，直接切回最新几条
-            if (isNearBottom()) {
-                trimWindowToLatest(PAGE_SIZE);
-                await scrollToBottom();
-                return;
-            }
-        }
-
-        if (isNearBottom()) {
-            trimWindowToLatest(PAGE_SIZE);
+        if (hasNewMessage && isViewingLatestChunk() && isNearBottom()) {
+            resetWindowToLatest();
             await scrollToBottom();
         }
     }
