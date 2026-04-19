@@ -38,6 +38,10 @@ windowm.getCurrentWindow().then(win => {
             await win.focus();
         }
     }).catch((err) => {
-        alert("注册快捷键失败");
+        if (import.meta.env.DEV) {
+            console.error("注册快捷键失败", err);
+        } else {
+            alert("注册快捷键失败" + err);
+        }
     });
 })
