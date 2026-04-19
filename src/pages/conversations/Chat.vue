@@ -135,16 +135,12 @@ const mediaButtons: MediaButton[] = [
     }
 ];
 
-const CHUNK_SIZE = 20;
-const OVERLAP_SIZE = 6;
-const CHUNK_STEP = Math.max(1, CHUNK_SIZE - OVERLAP_SIZE);
 const EDGE_TRIGGER_GAP = 20;
 const SWITCH_COOLDOWN_MS = 160;
 
 const inputValue = ref('');
 const messageContainerRef = ref<HTMLElement | null>(null);
 
-const windowStart = ref(0);
 const isSwitchingChunk = ref(false);
 const switchCooldownUntil = ref(0);
 const lastScrollTop = ref(0);
@@ -167,7 +163,7 @@ const activeRole = computed(() => {
     return rolesStore.roleList.find((role) => role.id === roleId) ?? null;
 });
 
-const allMessages = computed(() => {
+const visibleMessages = computed(() => {
     const roleId = chatStore.activeRoleId;
     if (!roleId) {
         return [];
@@ -175,20 +171,6 @@ const allMessages = computed(() => {
 
     return chatStore.getRoleMessages(roleId);
 });
-
-const visibleMessages = computed(() => {
-    const start = Math.max(0, Math.min(windowStart.value, allMessages.value.length));
-    const end = Math.min(start + CHUNK_SIZE, allMessages.value.length);
-    return allMessages.value.slice(start, end);
-});
-
-function getLatestWindowStart(total: number) {
-    return Math.max(0, total - CHUNK_SIZE);
-}
-
-function isViewingLatestChunk() {
-    return windowStart.value >= getLatestWindowStart(allMessages.value.length);
-}
 
 function renderMessageHtml(content: string) {
     const unsafeHtml = md.render(content || '');
@@ -214,12 +196,6 @@ async function scrollToBottom() {
 
     container.scrollTop = container.scrollHeight;
     lastScrollTop.value = container.scrollTop;
-}
-
-function resetWindowToLatest() {
-    windowStart.value = getLatestWindowStart(allMessages.value.length);
-    switchCooldownUntil.value = Date.now() + SWITCH_COOLDOWN_MS;
-    lastWheelDirection.value = '';
 }
 
 function getMessageElements() {
@@ -303,15 +279,20 @@ function restoreScrollAnchor(anchor: ScrollAnchor) {
 
 async function switchToOlderChunk() {
     const container = messageContainerRef.value;
-    if (!container || windowStart.value <= 0 || isSwitchingChunk.value) {
+    const roleId = chatStore.activeRoleId;
+    if (!container || !roleId || isSwitchingChunk.value || !chatStore.canLoadOlder(roleId)) {
         return;
     }
 
     const anchor = captureScrollAnchor('top');
     isSwitchingChunk.value = true;
-    windowStart.value = Math.max(0, windowStart.value - CHUNK_STEP);
 
     try {
+        const changed = await chatStore.loadOlderMessages(roleId);
+        if (!changed) {
+            return;
+        }
+
         await nextTick();
         const restored = anchor ? restoreScrollAnchor(anchor) : false;
         if (!restored) {
@@ -328,20 +309,20 @@ async function switchToOlderChunk() {
 
 async function switchToNewerChunk() {
     const container = messageContainerRef.value;
-    if (!container || isSwitchingChunk.value) {
-        return;
-    }
-
-    const nextStart = windowStart.value + CHUNK_STEP;
-    if (nextStart >= allMessages.value.length) {
+    const roleId = chatStore.activeRoleId;
+    if (!container || !roleId || isSwitchingChunk.value || !chatStore.canLoadNewer(roleId)) {
         return;
     }
 
     const anchor = captureScrollAnchor('bottom');
     isSwitchingChunk.value = true;
-    windowStart.value = nextStart;
 
     try {
+        const changed = await chatStore.loadNewerMessages(roleId);
+        if (!changed) {
+            return;
+        }
+
         await nextTick();
         const restored = anchor ? restoreScrollAnchor(anchor) : false;
         if (!restored) {
@@ -390,7 +371,7 @@ function onMessageScroll() {
     const remaining = container.scrollHeight - currentTop - container.clientHeight;
     const isAtBottomEdge = remaining <= EDGE_TRIGGER_GAP;
 
-    if (isAtTopEdge && windowStart.value > 0 && intendsUp) {
+    if (isAtTopEdge && intendsUp) {
         void switchToOlderChunk();
         return;
     }
@@ -425,13 +406,12 @@ async function sendCurrentInput() {
 
     await chatStore.sendMessage(roleId, text, () => {
         if (shouldStick) {
-            resetWindowToLatest();
             void scrollToBottom();
         }
     });
 
     if (shouldStick) {
-        resetWindowToLatest();
+        await chatStore.loadRoleMessages(roleId);
         await scrollToBottom();
     }
 }
@@ -444,38 +424,9 @@ watch(
         }
 
         await chatStore.loadRoleMessages(roleId);
-        resetWindowToLatest();
         await scrollToBottom();
     },
     { immediate: true }
-);
-
-watch(
-    () => allMessages.value.length,
-    async (nextLength, prevLength) => {
-        if (nextLength === 0) {
-            windowStart.value = 0;
-            return;
-        }
-
-        if (prevLength === 0 && nextLength > 0) {
-            resetWindowToLatest();
-            await scrollToBottom();
-            return;
-        }
-
-        if (windowStart.value >= nextLength) {
-            resetWindowToLatest();
-            await nextTick();
-            return;
-        }
-
-        const hasNewMessage = nextLength > prevLength;
-        if (hasNewMessage && isViewingLatestChunk() && isNearBottom()) {
-            resetWindowToLatest();
-            await scrollToBottom();
-        }
-    }
 );
 
 // 鼠标左键拖动标题栏

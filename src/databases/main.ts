@@ -82,6 +82,13 @@ class Database extends Dexie {
             hotMessages: 'uuid,roleId,createdAt',
             coldMessages: 'uuid,roleId,createdAt'
         });
+
+        this.version(2).stores({
+            apis: '++id',
+            roles: '++id',
+            hotMessages: 'uuid,roleId,createdAt,[roleId+createdAt]',
+            coldMessages: 'uuid,roleId,createdAt,[roleId+createdAt]'
+        });
     }
 }
 

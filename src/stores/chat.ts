@@ -7,6 +7,8 @@ import {
     ref
 } from 'vue';
 
+import Dexie from 'dexie';
+
 import {
     apis,
     coldMessages,
@@ -30,6 +32,16 @@ type RoleSummary = {
     total: number;
 };
 
+type RoleWindowState = {
+    hasOlder: boolean;
+    hasNewer: boolean;
+};
+
+const WINDOW_SIZE = 20;
+const WINDOW_STEP = 14;
+const OVERLAP_SIZE = WINDOW_SIZE - WINDOW_STEP;
+const DEFAULT_CONTEXT_LIMIT = 48;
+
 const HOT_KEEP_COUNT = 1;
 
 function generateUuid(prefix: string) {
@@ -42,6 +54,134 @@ function toTimestamp(value: Date) {
 
 function sortMessagesAsc(list: ChatTableMessage[]) {
     return [...list].sort((a, b) => toTimestamp(a.createdAt) - toTimestamp(b.createdAt));
+}
+
+function mergeAndTrimMessages(list: ChatTableMessage[], limit: number) {
+    return sortMessagesAsc(list).slice(-limit);
+}
+
+async function queryLatestMessagesFromTable(
+    table: typeof hotMessages,
+    roleId: number,
+    limit: number,
+) {
+    return table
+        .where('[roleId+createdAt]')
+        .between([roleId, Dexie.minKey], [roleId, Dexie.maxKey])
+        .reverse()
+        .limit(limit)
+        .toArray();
+}
+
+async function queryOlderMessagesFromTable(
+    table: typeof hotMessages,
+    roleId: number,
+    anchor: Date,
+    limit: number,
+) {
+    return table
+        .where('[roleId+createdAt]')
+        .between([roleId, Dexie.minKey], [roleId, anchor], true, false)
+        .reverse()
+        .limit(limit)
+        .toArray();
+}
+
+async function queryNewerMessagesFromTable(
+    table: typeof hotMessages,
+    roleId: number,
+    anchor: Date,
+    limit: number,
+) {
+    return table
+        .where('[roleId+createdAt]')
+        .between([roleId, anchor], [roleId, Dexie.maxKey], false, true)
+        .limit(limit)
+        .toArray();
+}
+
+async function fetchLatestWindowFromTables(roleId: number, limit: number) {
+    const queryLimit = limit + 1;
+    const [hotList, coldList] = await Promise.all([
+        queryLatestMessagesFromTable(hotMessages, roleId, queryLimit),
+        queryLatestMessagesFromTable(coldMessages, roleId, queryLimit),
+    ]);
+
+    const merged = mergeAndTrimMessages([
+        ...hotList,
+        ...coldList,
+    ], queryLimit);
+
+    const messages = merged.slice(-limit);
+
+    return {
+        messages,
+        hasOlder: merged.length > limit,
+        hasNewer: false,
+    };
+}
+
+async function fetchOlderWindowFromTables(roleId: number, anchor: Date, limit: number) {
+    const queryLimit = limit + 1;
+    const [hotList, coldList] = await Promise.all([
+        queryOlderMessagesFromTable(hotMessages, roleId, anchor, queryLimit),
+        queryOlderMessagesFromTable(coldMessages, roleId, anchor, queryLimit),
+    ]);
+
+    const merged = mergeAndTrimMessages([
+        ...hotList,
+        ...coldList,
+    ], queryLimit);
+
+    return {
+        messages: merged.slice(-limit),
+        hasOlder: merged.length > limit,
+    };
+}
+
+async function fetchNewerWindowFromTables(roleId: number, anchor: Date, limit: number) {
+    const queryLimit = limit + 1;
+    const [hotList, coldList] = await Promise.all([
+        queryNewerMessagesFromTable(hotMessages, roleId, anchor, queryLimit),
+        queryNewerMessagesFromTable(coldMessages, roleId, anchor, queryLimit),
+    ]);
+
+    const merged = mergeAndTrimMessages([
+        ...hotList,
+        ...coldList,
+    ], queryLimit);
+
+    return {
+        messages: merged.slice(0, limit),
+        hasNewer: merged.length > limit,
+    };
+}
+
+async function fetchLatestMessageForRole(roleId: number) {
+    const { messages } = await fetchLatestWindowFromTables(roleId, 1);
+    return messages[0] ?? null;
+}
+
+async function fetchRecentChatHistory(roleId: number, limit: number) {
+    const queryLimit = limit + 1;
+    const [hotList, coldList] = await Promise.all([
+        queryLatestMessagesFromTable(hotMessages, roleId, queryLimit),
+        queryLatestMessagesFromTable(coldMessages, roleId, queryLimit),
+    ]);
+
+    const merged = mergeAndTrimMessages([
+        ...hotList,
+        ...coldList,
+    ], queryLimit);
+
+    return merged.slice(-limit);
+}
+
+function buildWindowState(hasOlder: boolean, hasNewer: boolean): RoleWindowState {
+    return {
+        hasOlder,
+        hasNewer,
+    };
 }
 
 function toChatMessagesForLlm(list: ChatTableMessage[]) {
@@ -67,21 +207,10 @@ function normalizePreview(content: string) {
     return trimmed.length > 80 ? `${trimmed.slice(0, 80)}...` : trimmed;
 }
 
-async function fetchRoleMessagesFromTables(roleId: number) {
-    const [hotList, coldList] = await Promise.all([
-        hotMessages.where('roleId').equals(roleId).toArray(),
-        coldMessages.where('roleId').equals(roleId).toArray(),
-    ]);
-
-    return sortMessagesAsc([
-        ...coldList,
-        ...hotList,
-    ]);
-}
-
 export const useChatStore = defineStore('chat', () => {
     const activeRoleId = ref<number | null>(null);
     const roleMessagesMap = ref<Record<number, ChatTableMessage[]>>({});
+    const roleWindowStateMap = ref<Record<number, RoleWindowState>>({});
     const roleSummaryMap = ref<Record<number, RoleSummary>>({});
     const loadingRoleId = ref<number | null>(null);
     const errorMessage = ref('');
@@ -95,20 +224,32 @@ export const useChatStore = defineStore('chat', () => {
             ...roleMessagesMap.value,
             [roleId]: sortMessagesAsc(list),
         };
-        updateRoleSummary(roleId);
     }
 
-    function updateRoleSummary(roleId: number) {
-        const list = roleMessagesMap.value[roleId] ?? [];
-        const last = list.length > 0 ? list[list.length - 1] : null;
+    function setRoleWindowState(roleId: number, state: RoleWindowState) {
+        roleWindowStateMap.value = {
+            ...roleWindowStateMap.value,
+            [roleId]: state,
+        };
+    }
+
+    function getRoleWindowState(roleId: number) {
+        return roleWindowStateMap.value[roleId] ?? {
+            hasOlder: false,
+            hasNewer: false,
+        };
+    }
+
+    async function refreshRoleSummary(roleId: number) {
+        const latest = await fetchLatestMessageForRole(roleId);
 
         roleSummaryMap.value = {
             ...roleSummaryMap.value,
             [roleId]: {
                 roleId,
-                lastMessage: last ? normalizePreview(last.content) : '暂无消息',
-                updatedAt: last?.createdAt ?? null,
-                total: list.length,
+                lastMessage: latest ? normalizePreview(latest.content) : '暂无消息',
+                updatedAt: latest?.createdAt ?? null,
+                total: 0,
             },
         };
     }
@@ -157,9 +298,76 @@ export const useChatStore = defineStore('chat', () => {
 
     async function loadRoleMessages(roleId: number) {
         await initialize();
-        const list = await fetchRoleMessagesFromTables(roleId);
-        setRoleMessages(roleId, list);
-        return list;
+
+        const { messages, hasOlder, hasNewer } = await fetchLatestWindowFromTables(roleId, WINDOW_SIZE);
+        setRoleMessages(roleId, messages);
+        setRoleWindowState(roleId, buildWindowState(hasOlder, hasNewer));
+        await refreshRoleSummary(roleId);
+        return messages;
+    }
+
+    async function loadOlderMessages(roleId: number) {
+        await initialize();
+
+        const current = roleMessagesMap.value[roleId] ?? [];
+        if (current.length === 0) {
+            return false;
+        }
+
+        const anchor = current[0]?.createdAt;
+        if (!anchor) {
+            return false;
+        }
+
+        const { messages, hasOlder } = await fetchOlderWindowFromTables(roleId, anchor, WINDOW_STEP);
+        if (messages.length === 0) {
+            setRoleWindowState(roleId, {
+                hasOlder: false,
+                hasNewer: getRoleWindowState(roleId).hasNewer,
+            });
+            return false;
+        }
+
+        const nextMessages = sortMessagesAsc([
+            ...messages,
+            ...current.slice(0, OVERLAP_SIZE),
+        ]);
+
+        setRoleMessages(roleId, nextMessages);
+        setRoleWindowState(roleId, buildWindowState(hasOlder, true));
+        return true;
+    }
+
+    async function loadNewerMessages(roleId: number) {
+        await initialize();
+
+        const current = roleMessagesMap.value[roleId] ?? [];
+        if (current.length === 0) {
+            return false;
+        }
+
+        const anchor = current[current.length - 1]?.createdAt;
+        if (!anchor) {
+            return false;
+        }
+
+        const { messages, hasNewer } = await fetchNewerWindowFromTables(roleId, anchor, WINDOW_STEP);
+        if (messages.length === 0) {
+            setRoleWindowState(roleId, {
+                hasOlder: getRoleWindowState(roleId).hasOlder,
+                hasNewer: false,
+            });
+            return false;
+        }
+
+        const nextMessages = sortMessagesAsc([
+            ...current.slice(-OVERLAP_SIZE),
+            ...messages,
+        ]);
+
+        setRoleMessages(roleId, nextMessages);
+        setRoleWindowState(roleId, buildWindowState(true, hasNewer));
+        return true;
     }
 
     async function refreshRoleSummaries(roleIds: number[]) {
@@ -167,8 +375,7 @@ export const useChatStore = defineStore('chat', () => {
 
         await Promise.all(
             roleIds.map(async (roleId) => {
-                const list = await fetchRoleMessagesFromTables(roleId);
-                setRoleMessages(roleId, list);
+                await refreshRoleSummary(roleId);
             }),
         );
     }
@@ -218,6 +425,8 @@ export const useChatStore = defineStore('chat', () => {
             ...(roleMessagesMap.value[roleId] ?? []),
         ];
 
+        const currentWindowState = getRoleWindowState(roleId);
+
         const now = new Date();
         const userMessage: ChatTableMessage = {
             uuid: generateUuid('user'),
@@ -237,19 +446,22 @@ export const useChatStore = defineStore('chat', () => {
 
         current.push(userMessage);
         current.push(assistantMessage);
-        setRoleMessages(roleId, current);
+
+        if (!currentWindowState.hasNewer) {
+            setRoleMessages(roleId, current);
+        }
 
         await hotMessages.bulkPut([
             userMessage,
             assistantMessage,
         ]);
 
-        const history = toChatMessagesForLlm(current.filter((item) => item.uuid !== assistantMessage.uuid));
         const contextLimit = Number.isFinite(role.contextLimit) && role.contextLimit > 0
             ? Math.floor(role.contextLimit)
-            : history.length;
+            : DEFAULT_CONTEXT_LIMIT;
 
-        const llmHistory = contextLimit > 0 ? history.slice(-contextLimit) : history;
+        const history = await fetchRecentChatHistory(roleId, contextLimit);
+        const llmHistory = toChatMessagesForLlm(history);
 
         const runtimeSettings: LlmRuntimeSettings = {
             apiKey: api.key,
@@ -275,7 +487,9 @@ export const useChatStore = defineStore('chat', () => {
             const finalAnswer = await streamAssistant(runtimeSettings, llmHistory, (token) => {
                 assistantMessage.content += token;
 
-                setRoleMessages(roleId, current);
+                if (!currentWindowState.hasNewer) {
+                    setRoleMessages(roleId, current);
+                }
                 if (onToken) {
                     onToken(assistantMessage.content);
                 }
@@ -291,12 +505,16 @@ export const useChatStore = defineStore('chat', () => {
             });
 
             assistantMessage.content = finalAnswer;
-            setRoleMessages(roleId, current);
+            if (!currentWindowState.hasNewer) {
+                setRoleMessages(roleId, current);
+            }
             await flushAssistantToDb();
         } catch (error) {
             if (assistantMessage.content.trim() === '') {
                 assistantMessage.content = '(未收到有效响应)';
-                setRoleMessages(roleId, current);
+                if (!currentWindowState.hasNewer) {
+                    setRoleMessages(roleId, current);
+                }
                 await hotMessages.update(assistantMessage.uuid, {
                     content: assistantMessage.content,
                 });
@@ -309,7 +527,7 @@ export const useChatStore = defineStore('chat', () => {
                 flushTimer = null;
             }
             loadingRoleId.value = null;
-            updateRoleSummary(roleId);
+            await refreshRoleSummary(roleId);
         }
     }
 
@@ -320,6 +538,10 @@ export const useChatStore = defineStore('chat', () => {
         initialize,
         openRole,
         loadRoleMessages,
+        loadOlderMessages,
+        loadNewerMessages,
+        canLoadOlder: (roleId: number) => getRoleWindowState(roleId).hasOlder,
+        canLoadNewer: (roleId: number) => getRoleWindowState(roleId).hasNewer,
         refreshRoleSummaries,
         getRoleMessages,
         getRoleSummary,
