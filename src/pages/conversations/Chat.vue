@@ -441,6 +441,28 @@ function handleMouseDown(event: MouseEvent) {
 </script>
 
 <style scoped>
+:deep(.diff-html-content) {
+    --markdown-table-border: rgb(209 213 219);
+}
+
+:deep(.dark .diff-html-content) {
+    --markdown-table-border: rgb(63 63 70);
+}
+
+:deep(.diff-html-content table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+    border: 1px solid var(--markdown-table-border);
+}
+
+:deep(.diff-html-content th),
+:deep(.diff-html-content td) {
+    border: 1px solid var(--markdown-table-border);
+    padding: 0.4rem 0.6rem;
+    vertical-align: top;
+}
+
 :deep(.diff-html-content pre) {
     overflow-x: auto;
 }
