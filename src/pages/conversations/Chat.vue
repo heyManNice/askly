@@ -36,10 +36,8 @@
                 'justify-start': message.type !== 'user',
             }">
                 <!-- 消息气泡 -->
-                <n class="max-w-[90%] rounded px-3 py-2 text-sm leading-6 select-text" :class="{
-                    'bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-900': message.type === 'user',
-                    'bg-gray-100 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100': message.type !== 'user',
-                }">
+                <n
+                    class="max-w-[90%] rounded px-3 py-2 text-sm leading-6 select-text bg-gray-50 text-gray-900 dark:bg-zinc-900 dark:text-zinc-200">
                     <!-- 使用自定义 diff-html 指令进行流式增量渲染 -->
                     <n class="diff-html-content" v-diff-html="renderMessageHtml(message.content)"></n>
                 </n>
