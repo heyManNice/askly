@@ -97,60 +97,6 @@ type StreamResult = {
     toolCalls: NormalizedToolCall[];
 };
 
-function normalizeToolCalls(message: AIMessage): NormalizedToolCall[] {
-    const fromToolCalls = Array.isArray(message.tool_calls) ? message.tool_calls : [];
-    if (fromToolCalls.length > 0) {
-        const normalized: NormalizedToolCall[] = [];
-
-        for (let index = 0; index < fromToolCalls.length; index += 1) {
-            const call = fromToolCalls[index];
-            if (!call || typeof call.name !== "string") {
-                continue;
-            }
-
-            normalized.push({
-                id: typeof call.id === "string" ? call.id : `tool-${Date.now()}-${index}`,
-                name: call.name,
-                args: call.args,
-            });
-        }
-
-        return normalized;
-    }
-
-    const additional = message.additional_kwargs;
-    if (typeof additional !== "object" || additional === null || !Array.isArray(additional.tool_calls)) {
-        return [];
-    }
-
-    return additional.tool_calls
-        .map((item, index) => {
-            if (typeof item !== "object" || item === null) {
-                return null;
-            }
-
-            const id = "id" in item && typeof item.id === "string"
-                ? item.id
-                : `tool-${Date.now()}-${index}`;
-
-            if (!("function" in item) || typeof item.function !== "object" || item.function === null) {
-                return null;
-            }
-
-            const fn = item.function as { name?: unknown; arguments?: unknown };
-            if (typeof fn.name !== "string") {
-                return null;
-            }
-
-            return {
-                id,
-                name: fn.name,
-                args: fn.arguments,
-            };
-        })
-        .filter((entry): entry is NormalizedToolCall => entry !== null);
-}
-
 function parseToolArgs(args: unknown): unknown {
     if (typeof args === "string") {
         const text = args.trim();
@@ -203,33 +149,6 @@ function normalizeToolResult(value: unknown): string {
     } catch {
         return String(value);
     }
-}
-
-function contentToText(content: AIMessage["content"]): string {
-    if (typeof content === "string") {
-        return content;
-    }
-
-    if (!Array.isArray(content)) {
-        return "";
-    }
-
-    return content
-        .map((item) => {
-            if (typeof item === "string") {
-                return item;
-            }
-            if (
-                typeof item === "object" &&
-                item !== null &&
-                "text" in item &&
-                typeof (item as { text?: unknown }).text === "string"
-            ) {
-                return (item as { text: string }).text;
-            }
-            return "";
-        })
-        .join("");
 }
 
 function chunkToText(chunk: unknown) {
