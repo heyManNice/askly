@@ -13,7 +13,7 @@ import shortcut from "@eziapp-org/bridge/shortcut";
 const app = createApp(Main);
 app.use(createPinia());
 app.directive("diff-html", diffHtmlDirective);
-app.mount(document.body);
+app.mount("#app");
 
 // 启用这个能使用树摇优化
 if (import.meta.env.DEV) {
