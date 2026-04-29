@@ -482,7 +482,10 @@ function handleMouseDown(event: MouseEvent) {
     border: 1px solid var(--markdown-table-border);
     margin: 0.5rem 0;
     cursor: text;
-    font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace;
+}
+
+:deep(.diff-html-content pre code *) {
+    font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace, 'EmojiOne';
 }
 
 :deep(.diff-html-content code.hljs) {
