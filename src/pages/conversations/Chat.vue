@@ -128,7 +128,20 @@ const md = new MarkdownIt({
         throwOnError: false,
         output: 'html',
     },
-}).use(highlightjs);
+}).use(highlightjs).use((md) => {
+    const defaultOpen = md.renderer.rules.table_open || function (tokens, idx, options, env, self) {
+        return self.renderToken(tokens, idx, options);
+    };
+    const defaultClose = md.renderer.rules.table_close || function (tokens, idx, options, env, self) {
+        return self.renderToken(tokens, idx, options);
+    };
+    md.renderer.rules.table_open = function (tokens, idx, options, env, self) {
+        return '<div class="table-wrapper">\n' + defaultOpen(tokens, idx, options, env, self);
+    };
+    md.renderer.rules.table_close = function (tokens, idx, options, env, self) {
+        return defaultClose(tokens, idx, options, env, self) + '\n</div>';
+    };
+});
 
 type MediaButton = {
     icon: typeof FiFolder;
@@ -454,25 +467,36 @@ function handleMouseDown(event: MouseEvent) {
 <style scoped>
 :deep(.diff-html-content) {
     --markdown-table-border: rgb(209 213 219);
+    --markdown-table-bg: #FFFFFF;
     font-size: 1.05rem;
 }
 
 @media (prefers-color-scheme: dark) {
     :deep(.diff-html-content) {
         --markdown-table-border: rgb(82, 82, 89);
+        --markdown-table-bg: #0D1117;
     }
 }
 
-:deep(.diff-html-content table) {
-    margin: 0.5rem 0;
-    display: block;
+:deep(.diff-html-content .table-wrapper) {
     overflow-x: auto;
+    border: 1px solid var(--markdown-table-border);
+    margin: 0.5rem 0;
+    max-width: fit-content;
+    border-radius: 0.25rem;
+    background-color: var(--markdown-table-bg);
+}
+
+:deep(.diff-html-content table) {
+    border: 1px solid var(--markdown-table-border);
+    border-radius: 0.25rem;
+    overflow: hidden;
 }
 
 :deep(.diff-html-content th),
 :deep(.diff-html-content td) {
     border: 1px solid var(--markdown-table-border);
-    padding: 0.4rem 0.6rem;
+    padding: 0.6rem 0.8rem;
     vertical-align: top;
 }
 
@@ -482,6 +506,7 @@ function handleMouseDown(event: MouseEvent) {
     border: 1px solid var(--markdown-table-border);
     margin: 0.5rem 0;
     cursor: text;
+    border-radius: 0.25rem;
 }
 
 :deep(.diff-html-content pre code *) {
