@@ -453,6 +453,7 @@ function handleMouseDown(event: MouseEvent) {
 <style scoped>
 :deep(.diff-html-content) {
     --markdown-table-border: rgb(209 213 219);
+    font-size: 1.05rem;
 }
 
 :deep(.dark .diff-html-content) {
@@ -478,5 +479,10 @@ function handleMouseDown(event: MouseEvent) {
 
 :deep(.diff-html-content p) {
     margin: 0.25rem 0;
+}
+
+:deep(.diff-html-content>br),
+:deep(.diff-html-content>hr) {
+    display: none;
 }
 </style>
