@@ -73,6 +73,7 @@
 import windowm from '@eziapp-org/bridge/windowm';
 import MarkdownIt from 'markdown-it';
 import texmath from 'markdown-it-texmath';
+import highlightjs from 'markdown-it-highlightjs';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -127,7 +128,7 @@ const md = new MarkdownIt({
         throwOnError: false,
         output: 'html',
     },
-});
+}).use(highlightjs);
 
 type MediaButton = {
     icon: typeof FiFolder;
@@ -479,10 +480,13 @@ function handleMouseDown(event: MouseEvent) {
     overflow-x: auto;
     font-size: 0.9rem;
     border: 1px solid var(--markdown-table-border);
-    padding: 0.25rem 0.5rem;
     margin: 0.5rem 0;
     cursor: text;
     font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace;
+}
+
+:deep(.diff-html-content code.hljs) {
+    padding: 0.25rem 0.5rem;
 }
 
 :deep(.diff-html-content p) {
