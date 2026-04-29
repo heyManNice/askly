@@ -525,4 +525,9 @@ function handleMouseDown(event: MouseEvent) {
 :deep(.diff-html-content>hr) {
     display: none;
 }
+
+:deep(.diff-html-content .katex-display) {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
 </style>
