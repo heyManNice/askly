@@ -456,8 +456,10 @@ function handleMouseDown(event: MouseEvent) {
     font-size: 1.05rem;
 }
 
-:deep(.dark .diff-html-content) {
-    --markdown-table-border: rgb(63 63 70);
+@media (prefers-color-scheme: dark) {
+    :deep(.diff-html-content) {
+        --markdown-table-border: rgb(82, 82, 89);
+    }
 }
 
 :deep(.diff-html-content table) {
@@ -475,6 +477,12 @@ function handleMouseDown(event: MouseEvent) {
 
 :deep(.diff-html-content pre) {
     overflow-x: auto;
+    font-size: 0.9rem;
+    border: 1px solid var(--markdown-table-border);
+    padding: 0.25rem 0.5rem;
+    margin: 0.5rem 0;
+    cursor: text;
+    font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace;
 }
 
 :deep(.diff-html-content p) {
