@@ -450,10 +450,9 @@ function handleMouseDown(event: MouseEvent) {
 }
 
 :deep(.diff-html-content table) {
-    width: 100%;
-    border-collapse: collapse;
     margin: 0.5rem 0;
-    border: 1px solid var(--markdown-table-border);
+    display: block;
+    overflow-x: auto;
 }
 
 :deep(.diff-html-content th),
