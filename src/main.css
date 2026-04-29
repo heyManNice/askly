@@ -14,3 +14,27 @@ body {
 *:focus {
     outline: none;
 }
+
+/* 自定义的字体 */
+@font-face {
+    font-family: 'HarmonyOS_Sans_SC';
+    src: url('./fonts/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf') format('truetype');
+    font-weight: 400;
+    /* Regular (Normal) */
+}
+
+@font-face {
+    font-family: 'HarmonyOS_Sans_SC';
+    src: url('./fonts/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Bold.ttf') format('truetype');
+    font-weight: 700;
+    /* Bold */
+}
+
+@font-face {
+    font-family: 'EmojiOne';
+    src: url('./fonts/emojione-android.ttf') format('truetype');
+}
+
+body {
+    font-family: 'HarmonyOS_Sans_SC', sans-serif, 'EmojiOne';
+}
