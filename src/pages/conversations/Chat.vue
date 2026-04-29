@@ -72,7 +72,10 @@
 <script lang="ts" setup>
 import windowm from '@eziapp-org/bridge/windowm';
 import MarkdownIt from 'markdown-it';
+import texmath from 'markdown-it-texmath';
 import DOMPurify from 'dompurify';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 import {
     computed,
@@ -117,6 +120,13 @@ const md = new MarkdownIt({
     html: false,
     linkify: true,
     breaks: true,
+}).use(texmath, {
+    engine: katex,
+    delimiters: 'dollars',
+    katexOptions: {
+        throwOnError: false,
+        output: 'html',
+    },
 });
 
 type MediaButton = {
