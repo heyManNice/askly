@@ -67,13 +67,11 @@ windowm.getCurrentWindow().then(win => {
     let isResizing = false;
 
     document.addEventListener("mousedown", function (event) {
-        if (event.button === 0) {
-            if (event.ctrlKey) win.drag();
-            return;
+        if (event.ctrlKey && event.button === 0) {
+            win.drag();
         }
         // 如果是右键+ctrl键，启用调整窗口大小
-        else if (event.button === 2) {
-            if (!event.ctrlKey) return;
+        else if (event.ctrlKey && event.button === 2) {
             win.getSize().then(size => {
                 windowSize.width = size.width;
                 windowSize.height = size.height;
