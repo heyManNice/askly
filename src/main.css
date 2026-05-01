@@ -40,3 +40,8 @@ body {
 body {
     font-family: 'HarmonyOS_Sans_SC', sans-serif, 'EmojiOne';
 }
+
+/* 按下 Ctrl 键时，鼠标指针变为移动状态，提示用户可以移动窗口。 */
+.ctrl-press-cursor * {
+    cursor: move !important;
+}

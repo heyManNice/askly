@@ -44,4 +44,59 @@ windowm.getCurrentWindow().then(win => {
             alert("注册快捷键失败" + err);
         }
     });
+
+    // 一个从linux获得灵感的功能：
+    // 按住ctrl键时，鼠标变成移动图标，可以拖动窗口；按住ctrl键+右键时，可以调整窗口大小
+    document.addEventListener("keydown", function (event) {
+        if (event.ctrlKey) {
+            document.body.classList.add("ctrl-press-cursor");
+        }
+    });
+
+    document.addEventListener("keyup", function (event) {
+        if (!event.ctrlKey) {
+            document.body.classList.remove("ctrl-press-cursor");
+        }
+    });
+
+    // 鼠标右键按下时记录位置
+    const mousePos = { x: 0, y: 0 };
+    // 鼠标按下时的窗口大小
+    const windowSize = { width: 0, height: 0 };
+    // 是否正在调整窗口大小
+    let isResizing = false;
+
+    document.addEventListener("mousedown", function (event) {
+        if (event.button === 0) {
+            if (event.ctrlKey) win.drag();
+            return;
+        }
+        // 如果是右键+ctrl键，启用调整窗口大小
+        else if (event.button === 2) {
+            if (!event.ctrlKey) return;
+            win.getSize().then(size => {
+                windowSize.width = size.width;
+                windowSize.height = size.height;
+
+                mousePos.x = event.clientX;
+                mousePos.y = event.clientY;
+
+                isResizing = true;
+            });
+        }
+    });
+
+    document.addEventListener("mouseup", function (event) {
+        if (isResizing) isResizing = false;
+    });
+
+    document.addEventListener("mousemove", function (event) {
+        if (!isResizing) return;
+        const deltaX = event.clientX - mousePos.x;
+        const deltaY = event.clientY - mousePos.y;
+        win.setSize({
+            width: Math.max(350, windowSize.width + deltaX),
+            height: Math.max(600, windowSize.height + deltaY)
+        });
+    });
 })
