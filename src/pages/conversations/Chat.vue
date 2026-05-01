@@ -27,7 +27,7 @@
 
         <!-- 会话消息区 -->
         <n ref="messageContainerRef" class="flex-1 overflow-y-auto px-2 py-2" @wheel.passive="onMessageWheel"
-            @scroll="onMessageScroll">
+            @scroll="onMessageScroll" @contextmenu.prevent="onContextMenu">
             <n v-if="visibleMessages.length === 0" class="text-sm text-gray-500 dark:text-zinc-400 px-1 py-2">
                 暂无消息，发送第一条开始对话。
             </n>
@@ -111,6 +111,12 @@ import {
 import {
     useChatStore
 } from '@stores/chat';
+
+
+// 右键菜单函数
+function onContextMenu(event: MouseEvent) {
+    console.log(event);
+}
 
 const pageStack = usePageStackStore();
 const pinStore = usePinStore();
