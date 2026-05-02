@@ -87,7 +87,7 @@ windowm.getCurrentWindow().then(win => {
                     });
                 }
                 document.addEventListener("mousemove", onMouseMove);
-                document.addEventListener("mouseup", function onMouseUp() {
+                document.addEventListener("mouseup", () => {
                     document.removeEventListener("mousemove", onMouseMove);
                 }, { once: true });
             });
