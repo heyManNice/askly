@@ -24,7 +24,7 @@ if (import.meta.env.DEV) {
 
 windowm.getCurrentWindow().then(win => {
     // 显示托盘图标
-    tray.show(win);
+    tray.show();
 
     // 注册全局快捷键
     shortcut.register({
@@ -93,8 +93,8 @@ windowm.getCurrentWindow().then(win => {
         const deltaX = event.clientX - mousePos.x;
         const deltaY = event.clientY - mousePos.y;
         win.setSize({
-            width: Math.max(350, windowSize.width + deltaX),
-            height: Math.max(600, windowSize.height + deltaY)
+            width: windowSize.width + deltaX,
+            height: windowSize.height + deltaY
         });
     });
 })

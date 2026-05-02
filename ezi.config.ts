@@ -13,6 +13,10 @@ export default defineConfig({
             width: 1200,
             height: 800,
         },
+        minSize: {
+            width: 350,
+            height: 600,
+        },
         splashscreen: {
             src: "image/logo.png",
         },
