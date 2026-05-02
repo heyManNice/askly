@@ -63,8 +63,6 @@ windowm.getCurrentWindow().then(win => {
     const mousePos = { x: 0, y: 0 };
     // 鼠标按下时的窗口大小
     const windowSize = { width: 0, height: 0 };
-    // 是否正在调整窗口大小
-    let isResizing = false;
 
     document.addEventListener("mousedown", function (event) {
         if (event.ctrlKey && event.button === 0) {
@@ -79,22 +77,20 @@ windowm.getCurrentWindow().then(win => {
                 mousePos.x = event.clientX;
                 mousePos.y = event.clientY;
 
-                isResizing = true;
+                // 鼠标移动时调整窗口大小
+                function onMouseMove(event: MouseEvent) {
+                    const deltaX = event.clientX - mousePos.x;
+                    const deltaY = event.clientY - mousePos.y;
+                    win.setSize({
+                        width: windowSize.width + deltaX,
+                        height: windowSize.height + deltaY
+                    });
+                }
+                document.addEventListener("mousemove", onMouseMove);
+                document.addEventListener("mouseup", function onMouseUp() {
+                    document.removeEventListener("mousemove", onMouseMove);
+                }, { once: true });
             });
         }
-    });
-
-    document.addEventListener("mouseup", function (event) {
-        if (isResizing) isResizing = false;
-    });
-
-    document.addEventListener("mousemove", function (event) {
-        if (!isResizing) return;
-        const deltaX = event.clientX - mousePos.x;
-        const deltaY = event.clientY - mousePos.y;
-        win.setSize({
-            width: windowSize.width + deltaX,
-            height: windowSize.height + deltaY
-        });
     });
 })
