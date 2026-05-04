@@ -516,7 +516,7 @@ function handleMouseDown(event: MouseEvent) {
 }
 
 :deep(.diff-html-content pre code *) {
-    font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace, 'EmojiOne';
+    font-family: SF Mono, SF Mono Regular, Consolas, 'Courier New', monospace;
 }
 
 :deep(.diff-html-content code.hljs) {

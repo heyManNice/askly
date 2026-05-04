@@ -32,13 +32,8 @@ body {
     /* Bold */
 }
 
-@font-face {
-    font-family: 'EmojiOne';
-    src: url('/fonts/emojione-android.ttf') format('truetype');
-}
-
 body {
-    font-family: 'HarmonyOS_Sans_SC', sans-serif, 'EmojiOne';
+    font-family: 'HarmonyOS_Sans_SC', sans-serif;
 }
 
 /* 按下 Ctrl 键时，鼠标指针变为移动状态，提示用户可以移动窗口。 */
